@@ -873,5 +873,4 @@ describe("directive parsing", () => {
       });
     });
   });
-
 });
