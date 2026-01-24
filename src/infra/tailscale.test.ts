@@ -73,9 +73,11 @@ describe("tailscale helpers", () => {
 
     await enableTailscaleServe(3000, exec as never);
 
+    const bin = exec.mock.calls[0]?.[0] as string;
+    expect(bin).toMatch(/tailscale$/);
     expect(exec).toHaveBeenNthCalledWith(
       1,
-      "tailscale",
+      bin,
       expect.arrayContaining(["serve", "--bg", "--yes", "3000"]),
       expect.any(Object),
     );
@@ -83,7 +85,7 @@ describe("tailscale helpers", () => {
     expect(exec).toHaveBeenNthCalledWith(
       2,
       "sudo",
-      expect.arrayContaining(["-n", "tailscale", "serve", "--bg", "--yes", "3000"]),
+      expect.arrayContaining(["-n", bin, "serve", "--bg", "--yes", "3000"]),
       expect.any(Object),
     );
   });
@@ -94,9 +96,11 @@ describe("tailscale helpers", () => {
 
     await enableTailscaleServe(3000, exec as never);
 
+    const bin = exec.mock.calls[0]?.[0] as string;
+    expect(bin).toMatch(/tailscale$/);
     expect(exec).toHaveBeenCalledTimes(1);
     expect(exec).toHaveBeenCalledWith(
-      "tailscale",
+      bin,
       expect.arrayContaining(["serve", "--bg", "--yes", "3000"]),
       expect.any(Object),
     );
@@ -111,11 +115,13 @@ describe("tailscale helpers", () => {
 
     await disableTailscaleServe(exec as never);
 
+    const bin = exec.mock.calls[0]?.[0] as string;
+    expect(bin).toMatch(/tailscale$/);
     expect(exec).toHaveBeenCalledTimes(2);
     expect(exec).toHaveBeenNthCalledWith(
       2,
       "sudo",
-      expect.arrayContaining(["-n", "tailscale", "serve", "reset"]),
+      expect.arrayContaining(["-n", bin, "serve", "reset"]),
       expect.any(Object),
     );
   });
@@ -141,17 +147,19 @@ describe("tailscale helpers", () => {
 
     await ensureFunnel(8080, exec as never, runtime, prompt);
 
+    const bin = exec.mock.calls[0]?.[0] as string;
+    expect(bin).toMatch(/tailscale$/);
     // 1. status
     expect(exec).toHaveBeenNthCalledWith(
       1,
-      "tailscale",
+      bin,
       expect.arrayContaining(["funnel", "status", "--json"]),
     );
 
     // 2. enable normal
     expect(exec).toHaveBeenNthCalledWith(
       2,
-      "tailscale",
+      bin,
       expect.arrayContaining(["funnel", "--yes", "--bg", "8080"]),
       expect.any(Object),
     );
@@ -160,7 +168,7 @@ describe("tailscale helpers", () => {
     expect(exec).toHaveBeenNthCalledWith(
       3,
       "sudo",
-      expect.arrayContaining(["-n", "tailscale", "funnel", "--yes", "--bg", "8080"]),
+      expect.arrayContaining(["-n", bin, "funnel", "--yes", "--bg", "8080"]),
       expect.any(Object),
     );
   });

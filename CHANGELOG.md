@@ -26,6 +26,7 @@ Docs: https://docs.clawd.bot
 - Agents: treat plugin-only tool allowlists as opt-ins; keep core tools enabled. (#1467)
 - Exec approvals: persist allowlist entry ids to keep macOS allowlist rows stable. (#1521) Thanks @ngutman.
 - MS Teams (plugin): remove `.default` suffix from Graph scopes to avoid double-appending. (#1507) Thanks @Evizero.
+- Matrix (plugin): keep runtime deps installable with `npm install --omit=dev`. (#1549) Thanks @travisp.
 
 ## 2026.1.22
 
