@@ -1,9 +1,0 @@
-{
-  "id": "waha",
-  "channels": ["waha"],
-  "configSchema": {
-    "type": "object",
-    "additionalProperties": false,
-    "properties": {}
-  }
-}
