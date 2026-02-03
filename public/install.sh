@@ -680,43 +680,6 @@ run_doctor() {
   fi
 }
 
-prompt_language() {
-  # Skip if not interactive
-  if [[ "$NOOVI_NO_PROMPT" == "1" ]]; then
-    echo "en"
-    return 0
-  fi
-
-  # Check if terminal is available
-  if [[ ! -t 1 ]] && [[ ! -e /dev/tty ]]; then
-    echo "en"
-    return 0
-  fi
-
-  echo ""
-  echo -e "${BOLD}${CYAN}Select language / Selecione o idioma:${NC}"
-  echo ""
-  echo "  1) English"
-  echo "  2) Português (Brasil)"
-  echo ""
-
-  local choice
-  if [[ -e /dev/tty ]]; then
-    read -rp "Choose [1/2]: " choice </dev/tty
-  else
-    read -rp "Choose [1/2]: " choice
-  fi
-
-  case "$choice" in
-    2|pt|PT|português|portugues)
-      echo "pt"
-      ;;
-    *)
-      echo "en"
-      ;;
-  esac
-}
-
 run_onboarding() {
   if [[ "$NOOVI_NO_ONBOARD" == "1" ]]; then
     log_info "Skipping onboarding (--no-onboard)"
@@ -733,10 +696,30 @@ run_onboarding() {
     return 0
   fi
 
-  # Prompt for language selection
-  local selected_lang
-  selected_lang=$(prompt_language)
-  export OPENCLAW_LANGUAGE="$selected_lang"
+  # Check if terminal is available
+  if [[ ! -e /dev/tty ]]; then
+    log_info "No terminal available for onboarding."
+    log_info "Run manually: openclaw onboard"
+    return 0
+  fi
+
+  # Prompt for language selection (output to tty, read from tty)
+  echo "" >/dev/tty
+  echo -e "${BOLD}${CYAN}Select language / Selecione o idioma:${NC}" >/dev/tty
+  echo "" >/dev/tty
+  echo "  1) English" >/dev/tty
+  echo "  2) Português (Brasil)" >/dev/tty
+  echo "" >/dev/tty
+
+  local choice
+  read -rp "Choose [1/2]: " choice </dev/tty
+
+  local selected_lang="en"
+  case "$choice" in
+    2|pt|PT|português|portugues)
+      selected_lang="pt"
+      ;;
+  esac
 
   if [[ "$selected_lang" == "pt" ]]; then
     log_info "Idioma selecionado: Português (Brasil)"
@@ -744,19 +727,9 @@ run_onboarding() {
     log_info "Selected language: English"
   fi
 
-  # When running via curl | bash, stdin is the pipe, not the terminal
-  # We need to restore the terminal for interactive onboarding
-  if [[ -t 1 ]] && [[ -e /dev/tty ]]; then
-    log_info "Starting onboarding wizard..."
-    # Restore terminal for interactive input
-    OPENCLAW_LANGUAGE="$selected_lang" openclaw onboard </dev/tty || true
-  elif [[ -t 0 ]]; then
-    log_info "Starting onboarding wizard..."
-    OPENCLAW_LANGUAGE="$selected_lang" openclaw onboard || true
-  else
-    log_info "No terminal available for onboarding."
-    log_info "Run manually: OPENCLAW_LANGUAGE=$selected_lang openclaw onboard"
-  fi
+  log_info "Starting onboarding wizard..."
+  # Restore terminal for interactive input
+  OPENCLAW_LANGUAGE="$selected_lang" openclaw onboard </dev/tty || true
 }
 
 # -----------------------------------------------------------------------------
