@@ -177,6 +177,8 @@
 
   "doctor": {
     "title": "OpenClaw Doctor",
+    "intro": "OpenClaw doctor",
+    "complete": "Doctor complete.",
     "running": "Running diagnostics...",
     "checking": "Checking {{item}}...",
     "passed": "All checks passed",
@@ -184,7 +186,48 @@
     "issues": "{{count}} issue(s) found",
     "noIssues": "No issues found",
     "fixAvailable": "Run `{{command}}` to fix automatically",
-    "manualFix": "Manual fix required"
+    "manualFix": "Manual fix required",
+    "applyChanges": "Run \"{{command}}\" to apply changes.",
+    "backup": "Backup: {{path}}",
+    "invalidConfig": "Invalid config:",
+    "configIssue": "- {{path}}: {{message}}",
+
+    "gateway": {
+      "label": "Gateway",
+      "modeUnset": "gateway.mode is unset; gateway start will be blocked.",
+      "fixConfigure": "Fix: run {{command}} and set Gateway mode (local/remote).",
+      "fixSetDirectly": "Or set directly: {{command}}",
+      "missingConfig": "Missing config: run {{command}} first."
+    },
+
+    "auth": {
+      "label": "Gateway auth",
+      "missingToken": "Gateway auth is off or missing a token. Token auth is now the recommended default (including loopback).",
+      "generateToken": "Generate and configure a gateway token now?",
+      "tokenConfigured": "Gateway token configured."
+    },
+
+    "legacyState": {
+      "label": "Legacy state detected",
+      "migratePrompt": "Migrate legacy state (sessions/agent/WhatsApp auth) now?",
+      "changes": "Doctor changes",
+      "warnings": "Doctor warnings"
+    },
+
+    "hooks": {
+      "label": "Hooks",
+      "modelNotResolved": "hooks.gmail.model \"{{model}}\" could not be resolved",
+      "modelNotInAllowlist": "hooks.gmail.model \"{{model}}\" not in agents.defaults.models allowlist (will use primary instead)",
+      "modelNotInCatalog": "hooks.gmail.model \"{{model}}\" not in the model catalog (may fail at runtime)"
+    },
+
+    "systemd": {
+      "lingerReason": "Gateway runs as a systemd user service. Without lingering, systemd stops the user session on logout/idle and kills the Gateway."
+    },
+
+    "workspace": {
+      "label": "Workspace"
+    }
   },
 
   "status": {
@@ -347,5 +390,25 @@
     "gatewayStopped": "Gateway stopped",
     "channelConnected": "Connected to {{channel}}",
     "channelDisconnected": "Disconnected from {{channel}}"
+  },
+
+  "banner": {
+    "title": "OpenClaw",
+    "defaultTagline": "All your chats, one OpenClaw.",
+    "taglines": [
+      "Your terminal just grew claws—type something and let the bot pinch the busywork.",
+      "Welcome to the command line: where dreams compile and confidence segfaults.",
+      "Gateway online—please keep hands, feet, and appendages inside the shell at all times.",
+      "I speak fluent bash, mild sarcasm, and aggressive tab-completion energy.",
+      "One CLI to rule them all, and one more restart because you changed the port.",
+      "Hot reload for config, cold sweat for deploys.",
+      "Automation with claws: minimal fuss, maximal pinch.",
+      "If you're lost, run doctor; if you're brave, run prod; if you're wise, run tests.",
+      "Your inbox, your infra, your rules.",
+      "The UNIX philosophy meets your DMs.",
+      "Ship fast, log faster.",
+      "Your messages, your servers, your control.",
+      "OpenAI-compatible, not OpenAI-dependent."
+    ]
   }
 }

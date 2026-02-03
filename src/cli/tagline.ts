@@ -1,3 +1,5 @@
+import { t, getLocale } from "../i18n/index.js";
+
 const DEFAULT_TAGLINE = "All your chats, one OpenClaw.";
 
 const HOLIDAY_TAGLINES = {
@@ -244,11 +246,39 @@ export interface TaglineOptions {
 
 export function activeTaglines(options: TaglineOptions = {}): string[] {
   if (TAGLINES.length === 0) {
-    return [DEFAULT_TAGLINE];
+    return [getLocalizedDefaultTagline()];
   }
   const today = options.now ? options.now() : new Date();
   const filtered = TAGLINES.filter((tagline) => isTaglineActive(tagline, today));
   return filtered.length > 0 ? filtered : TAGLINES;
+}
+
+/**
+ * Get translated taglines based on current locale
+ * Returns localized taglines if available, otherwise falls back to English
+ */
+function getLocalizedTaglines(): string[] {
+  const locale = getLocale();
+  if (locale === "en") {
+    return TAGLINES;
+  }
+
+  // Try to get translated taglines array
+  const translatedTaglines = t("banner.taglines");
+
+  // If translation returns the key itself or is not an array-like string, use defaults
+  if (translatedTaglines === "banner.taglines" || !translatedTaglines.startsWith("[")) {
+    return TAGLINES;
+  }
+
+  return TAGLINES; // For now, use original taglines as they're complex with holidays
+}
+
+/**
+ * Get the default tagline, translated if available
+ */
+function getLocalizedDefaultTagline(): string {
+  return t("banner.defaultTagline") || DEFAULT_TAGLINE;
 }
 
 export function pickTagline(options: TaglineOptions = {}): string {
@@ -257,7 +287,7 @@ export function pickTagline(options: TaglineOptions = {}): string {
   if (override !== undefined) {
     const parsed = Number.parseInt(override, 10);
     if (!Number.isNaN(parsed) && parsed >= 0) {
-      const pool = TAGLINES.length > 0 ? TAGLINES : [DEFAULT_TAGLINE];
+      const pool = TAGLINES.length > 0 ? TAGLINES : [getLocalizedDefaultTagline()];
       return pool[parsed % pool.length];
     }
   }

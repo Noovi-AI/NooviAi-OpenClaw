@@ -177,6 +177,8 @@
 
   "doctor": {
     "title": "OpenClaw Doctor",
+    "intro": "OpenClaw doctor",
+    "complete": "Doutor concluído.",
     "running": "Executando diagnósticos...",
     "checking": "Verificando {{item}}...",
     "passed": "Todas as verificações passaram",
@@ -184,7 +186,48 @@
     "issues": "{{count}} problema(s) encontrado(s)",
     "noIssues": "Nenhum problema encontrado",
     "fixAvailable": "Execute `{{command}}` para corrigir automaticamente",
-    "manualFix": "Correção manual necessária"
+    "manualFix": "Correção manual necessária",
+    "applyChanges": "Execute \"{{command}}\" para aplicar as alterações.",
+    "backup": "Backup: {{path}}",
+    "invalidConfig": "Configuração inválida:",
+    "configIssue": "- {{path}}: {{message}}",
+
+    "gateway": {
+      "label": "Gateway",
+      "modeUnset": "gateway.mode não está definido; inicialização do gateway será bloqueada.",
+      "fixConfigure": "Correção: execute {{command}} e defina o modo do Gateway (local/remote).",
+      "fixSetDirectly": "Ou defina diretamente: {{command}}",
+      "missingConfig": "Configuração ausente: execute {{command}} primeiro."
+    },
+
+    "auth": {
+      "label": "Autenticação Gateway",
+      "missingToken": "Autenticação do Gateway está desativada ou faltando um token. Autenticação por token é agora o padrão recomendado (incluindo loopback).",
+      "generateToken": "Gerar e configurar um token do gateway agora?",
+      "tokenConfigured": "Token do gateway configurado."
+    },
+
+    "legacyState": {
+      "label": "Estado legado detectado",
+      "migratePrompt": "Migrar estado legado (sessões/agente/autenticação WhatsApp) agora?",
+      "changes": "Alterações do doctor",
+      "warnings": "Avisos do doctor"
+    },
+
+    "hooks": {
+      "label": "Hooks",
+      "modelNotResolved": "hooks.gmail.model \"{{model}}\" não pôde ser resolvido",
+      "modelNotInAllowlist": "hooks.gmail.model \"{{model}}\" não está na lista de permissão agents.defaults.models (usará o primário em vez disso)",
+      "modelNotInCatalog": "hooks.gmail.model \"{{model}}\" não está no catálogo de modelos (pode falhar em tempo de execução)"
+    },
+
+    "systemd": {
+      "lingerReason": "Gateway roda como serviço de usuário systemd. Sem lingering, systemd para a sessão do usuário ao logout/idle e mata o Gateway."
+    },
+
+    "workspace": {
+      "label": "Workspace"
+    }
   },
 
   "status": {
@@ -347,5 +390,25 @@
     "gatewayStopped": "Gateway parado",
     "channelConnected": "Conectado ao {{channel}}",
     "channelDisconnected": "Desconectado do {{channel}}"
+  },
+
+  "banner": {
+    "title": "OpenClaw",
+    "defaultTagline": "Todos os seus chats, um só OpenClaw.",
+    "taglines": [
+      "Seu terminal agora tem garras—digite algo e deixe o bot fazer o trabalho pesado.",
+      "Bem-vindo à linha de comando: onde sonhos compilam e confiança dá segfault.",
+      "Gateway online—mantenha mãos, pés e apêndices dentro do shell o tempo todo.",
+      "Eu falo bash fluente, sarcasmo moderado e energia agressiva de tab-completion.",
+      "Um CLI para governar todos, e mais um restart porque você mudou a porta.",
+      "Hot reload para config, suor frio para deploys.",
+      "Automação com garras: mínimo de confusão, máximo de eficiência.",
+      "Se está perdido, rode doctor; se é corajoso, rode prod; se é sábio, rode testes.",
+      "Sua caixa de entrada, sua infra, suas regras.",
+      "A filosofia UNIX encontra suas DMs.",
+      "Envie rápido, logue mais rápido.",
+      "Suas mensagens, seus servidores, seu controle.",
+      "Compatível com OpenAI, não dependente de OpenAI."
+    ]
   }
 }
