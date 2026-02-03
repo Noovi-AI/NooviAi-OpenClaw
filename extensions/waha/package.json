@@ -1,0 +1,29 @@
+{
+  "name": "@openclaw/waha",
+  "version": "2026.2.1",
+  "description": "OpenClaw WAHA (WhatsApp HTTP API) channel plugin",
+  "type": "module",
+  "devDependencies": {
+    "openclaw": "workspace:*"
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ],
+    "channel": {
+      "id": "waha",
+      "label": "WAHA",
+      "selectionLabel": "WAHA (WhatsApp HTTP API)",
+      "docsPath": "/channels/waha",
+      "docsLabel": "waha",
+      "blurb": "WhatsApp via WAHA HTTP API (self-hosted or cloud).",
+      "order": 25,
+      "quickstartAllowFrom": true
+    },
+    "install": {
+      "npmSpec": "@openclaw/waha",
+      "localPath": "extensions/waha",
+      "defaultChoice": "npm"
+    }
+  }
+}
