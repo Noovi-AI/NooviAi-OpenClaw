@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NooviAI OpenClaw</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        color: #fff;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+      }
+      .container {
+        max-width: 800px;
+        text-align: center;
+      }
+      h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(90deg, #00d4ff, #7c3aed);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .subtitle {
+        font-size: 1.25rem;
+        color: #94a3b8;
+        margin-bottom: 2rem;
+      }
+      .install-box {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 2rem;
+        margin: 2rem 0;
+      }
+      .install-box h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: #00d4ff;
+      }
+      .code-block {
+        background: #0d1117;
+        border-radius: 8px;
+        padding: 1rem 1.5rem;
+        font-family: "Fira Code", "Monaco", "Consolas", monospace;
+        font-size: 0.95rem;
+        overflow-x: auto;
+        text-align: left;
+        border: 1px solid #30363d;
+      }
+      .code-block code {
+        color: #58a6ff;
+      }
+      .features {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+      }
+      .feature {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: left;
+      }
+      .feature h3 {
+        color: #7c3aed;
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+      }
+      .feature p {
+        color: #94a3b8;
+        font-size: 0.9rem;
+      }
+      .links {
+        margin-top: 2rem;
+      }
+      .links a {
+        color: #00d4ff;
+        text-decoration: none;
+        margin: 0 1rem;
+        font-size: 0.95rem;
+        transition: color 0.2s;
+      }
+      .links a:hover {
+        color: #7c3aed;
+      }
+      .badge {
+        display: inline-block;
+        background: rgba(124, 58, 237, 0.2);
+        color: #a78bfa;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.8rem;
+        margin-bottom: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <span class="badge">Fork com traducao PT-BR</span>
+      <h1>NooviAI OpenClaw</h1>
+      <p class="subtitle">Assistente pessoal de IA com suporte a Portugues Brasileiro</p>
+
+      <div class="install-box">
+        <h2>Instalacao Rapida</h2>
+        <div class="code-block">
+          <code>curl -fsSL https://openclaw.nooviai.com/install.sh | bash</code>
+        </div>
+      </div>
+
+      <div class="features">
+        <div class="feature">
+          <h3>Multi-canal</h3>
+          <p>WhatsApp, Telegram, Slack, Discord, Signal e mais</p>
+        </div>
+        <div class="feature">
+          <h3>Traducao PT-BR</h3>
+          <p>Interface completamente traduzida para Portugues Brasileiro</p>
+        </div>
+        <div class="feature">
+          <h3>Auto-hospedado</h3>
+          <p>Rode em seu proprio servidor com total controle</p>
+        </div>
+        <div class="feature">
+          <h3>Codigo Aberto</h3>
+          <p>Fork do OpenClaw com atualizacoes sincronizadas</p>
+        </div>
+      </div>
+
+      <div class="links">
+        <a href="https://github.com/Noovi-AI/NooviAi-OpenClaw">GitHub</a>
+        <a href="https://docs.openclaw.ai">Documentacao</a>
+        <a href="https://github.com/openclaw/openclaw">OpenClaw Oficial</a>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # =============================================================================
 # NooviAI OpenClaw Installer
-# https://nooviai.com/install.sh
+# https://openclaw.nooviai.com/install.sh
 #
 # Usage:
-#   curl -fsSL https://nooviai.com/install.sh | bash
-#   curl -fsSL https://nooviai.com/install.sh | bash -s -- --help
-#   curl -fsSL https://nooviai.com/install.sh | bash -s -- --beta
-#   curl -fsSL https://nooviai.com/install.sh | bash -s -- --install-method git
+#   curl -fsSL https://openclaw.nooviai.com/install.sh | bash
+#   curl -fsSL https://openclaw.nooviai.com/install.sh | bash -s -- --help
+#   curl -fsSL https://openclaw.nooviai.com/install.sh | bash -s -- --beta
+#   curl -fsSL https://openclaw.nooviai.com/install.sh | bash -s -- --install-method git
 #
 # Environment variables:
 #   NOOVI_VERSION           - Version to install (default: latest)
@@ -175,7 +175,7 @@ show_help() {
   NooviAI OpenClaw Installer
 
 USAGE:
-  curl -fsSL https://nooviai.com/install.sh | bash [-- OPTIONS]
+  curl -fsSL https://openclaw.nooviai.com/install.sh | bash [-- OPTIONS]
 
 OPTIONS:
   --help, -h              Show this help message
@@ -201,19 +201,19 @@ ENVIRONMENT VARIABLES:
 
 EXAMPLES:
   # Standard installation (npm)
-  curl -fsSL https://nooviai.com/install.sh | bash
+  curl -fsSL https://openclaw.nooviai.com/install.sh | bash
 
   # Install beta version
-  curl -fsSL https://nooviai.com/install.sh | bash -s -- --beta
+  curl -fsSL https://openclaw.nooviai.com/install.sh | bash -s -- --beta
 
   # Install from git
-  curl -fsSL https://nooviai.com/install.sh | bash -s -- --install-method git
+  curl -fsSL https://openclaw.nooviai.com/install.sh | bash -s -- --install-method git
 
   # Install specific version
-  curl -fsSL https://nooviai.com/install.sh | bash -s -- --version 2026.2.1
+  curl -fsSL https://openclaw.nooviai.com/install.sh | bash -s -- --version 2026.2.1
 
   # CI/Headless installation
-  NOOVI_NO_PROMPT=1 curl -fsSL https://nooviai.com/install.sh | bash
+  NOOVI_NO_PROMPT=1 curl -fsSL https://openclaw.nooviai.com/install.sh | bash
 
 EOF
   exit 0

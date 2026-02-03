@@ -50,7 +50,7 @@ openclaw onboard --install-daemon
 ### Via Script de Instalacao
 
 ```bash
-curl -fsSL https://nooviai.com/install.sh | bash
+curl -fsSL https://openclaw.nooviai.com/install.sh | bash
 ```
 
 ### Do Codigo Fonte
