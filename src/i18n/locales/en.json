@@ -128,6 +128,157 @@
 
     "completion": {
       "installPrompt": "Install shell completion script?"
+    },
+
+    "finalize": {
+      "systemd": {
+        "label": "Systemd",
+        "unavailable": "Systemd user services are unavailable. Skipping lingering checks and service install.",
+        "lingerReason": "Linux installs use a systemd user service by default. Without lingering, systemd stops the user session on logout/idle and kills the Gateway.",
+        "unavailableSkip": "Systemd user services are unavailable; skipping service install. Use your container supervisor or `docker compose up -d`."
+      },
+      "service": {
+        "label": "Gateway service",
+        "installPrompt": "Install Gateway service (recommended)",
+        "runtimePrompt": "Gateway service runtime",
+        "quickstartRuntime": "QuickStart uses Node for the Gateway service (stable + supported).",
+        "alreadyInstalled": "Gateway service already installed",
+        "restart": "Restart",
+        "reinstall": "Reinstall",
+        "skip": "Skip",
+        "restarting": "Restarting Gateway service…",
+        "restarted": "Gateway service restarted.",
+        "uninstalling": "Uninstalling Gateway service…",
+        "uninstalled": "Gateway service uninstalled.",
+        "preparing": "Preparing Gateway service…",
+        "installing": "Installing Gateway service…",
+        "installed": "Gateway service installed.",
+        "installFailed": "Gateway service install failed.",
+        "installFailedDetail": "Gateway service install failed: {{error}}"
+      },
+      "healthCheck": {
+        "label": "Health check help",
+        "docs": "Docs:\nhttps://docs.openclaw.ai/gateway/health\nhttps://docs.openclaw.ai/gateway/troubleshooting"
+      },
+      "optionalApps": {
+        "label": "Optional apps",
+        "message": "Add nodes for extra features:\n- macOS app (system + notifications)\n- iOS app (camera/canvas)\n- Android app (camera/canvas)"
+      },
+      "controlUi": {
+        "label": "Control UI",
+        "webUi": "Web UI: {{url}}",
+        "webUiWithToken": "Web UI (with token): {{url}}",
+        "gatewayWs": "Gateway WS: {{url}}",
+        "gatewayReachable": "Gateway: reachable",
+        "gatewayNotDetected": "Gateway: not detected",
+        "gatewayNotDetectedDetail": "Gateway: not detected ({{detail}})",
+        "docs": "Docs: https://docs.openclaw.ai/web/control-ui",
+        "skipping": "Skipping Control UI/TUI prompts."
+      },
+      "hatch": {
+        "label": "Start TUI (best option!)",
+        "intro": "This is the defining action that makes your agent you.\nPlease take your time.\nThe more you tell it, the better the experience will be.\nWe will send: \"Wake up, my friend!\"",
+        "prompt": "How do you want to hatch your bot?",
+        "tuiOption": "Hatch in TUI (recommended)",
+        "webOption": "Open the Web UI",
+        "laterOption": "Do this later",
+        "wakeMessage": "Wake up, my friend!"
+      },
+      "token": {
+        "label": "Token",
+        "info": "Gateway token: shared auth for the Gateway + Control UI.\nStored in: ~/.openclaw/openclaw.json (gateway.auth.token) or OPENCLAW_GATEWAY_TOKEN.\nWeb UI stores a copy in this browser's localStorage (openclaw.control.settings.v1).\nGet the tokenized link anytime: {{command}}"
+      },
+      "webUi": {
+        "label": "Web UI",
+        "seeded": "Web UI seeded in the background. Open later with: {{command}}"
+      },
+      "dashboard": {
+        "label": "Dashboard ready",
+        "linkWithToken": "Dashboard link (with token): {{url}}",
+        "opened": "Opened in your browser. Keep that tab to control OpenClaw.",
+        "copyPaste": "Copy/paste this URL in a browser on this machine to control OpenClaw."
+      },
+      "later": {
+        "label": "Later",
+        "message": "When you're ready: {{command}}"
+      },
+      "backup": {
+        "label": "Workspace backup",
+        "message": "Back up your agent workspace.\nDocs: https://docs.openclaw.ai/concepts/agent-workspace"
+      },
+      "security": {
+        "label": "Security",
+        "message": "Running agents on your computer is risky — harden your setup: https://docs.openclaw.ai/security"
+      },
+      "webSearch": {
+        "label": "Web search (optional)",
+        "enabled": "Web search is enabled, so your agent can look things up online when needed.\n\n{{keySource}}\nDocs: https://docs.openclaw.ai/tools/web",
+        "keyInConfig": "API key: stored in config (tools.web.search.apiKey).",
+        "keyInEnv": "API key: provided via BRAVE_API_KEY env var (Gateway environment).",
+        "disabled": "If you want your agent to be able to search the web, you'll need an API key.\n\nOpenClaw uses Brave Search for the `web_search` tool. Without a Brave Search API key, web search won't work.\n\nSet it up interactively:\n- Run: {{command}}\n- Enable web_search and paste your Brave Search API key\n\nAlternative: set BRAVE_API_KEY in the Gateway environment (no config changes).\nDocs: https://docs.openclaw.ai/tools/web"
+      },
+      "whatNow": {
+        "label": "What now",
+        "message": "What now: https://openclaw.ai/showcase (\"What People Are Building\")."
+      },
+      "complete": {
+        "withDashboard": "Onboarding complete. Dashboard opened with your token; keep that tab to control OpenClaw.",
+        "withSeeded": "Onboarding complete. Web UI seeded in the background; open it anytime with the tokenized link above.",
+        "default": "Onboarding complete. Use the tokenized dashboard link above to control OpenClaw."
+      }
+    },
+
+    "gatewayConfig": {
+      "port": {
+        "prompt": "Gateway port",
+        "invalid": "Invalid port"
+      },
+      "bind": {
+        "prompt": "Gateway bind",
+        "loopback": "Loopback (127.0.0.1)",
+        "lan": "LAN (0.0.0.0)",
+        "tailnet": "Tailnet (Tailscale IP)",
+        "auto": "Auto (Loopback → LAN)",
+        "custom": "Custom IP"
+      },
+      "customIp": {
+        "prompt": "Custom IP address",
+        "placeholder": "192.168.1.100",
+        "required": "IP address is required for custom bind mode",
+        "invalidFormat": "Invalid IPv4 address (e.g., 192.168.1.100)",
+        "invalidOctet": "Invalid IPv4 address (each octet must be 0-255)"
+      },
+      "auth": {
+        "prompt": "Gateway auth",
+        "token": "Token",
+        "tokenHint": "Recommended default (local + remote)",
+        "password": "Password"
+      },
+      "tailscale": {
+        "prompt": "Tailscale exposure",
+        "off": "Off",
+        "offHint": "No Tailscale exposure",
+        "serve": "Serve",
+        "serveHint": "Private HTTPS for your tailnet (devices on Tailscale)",
+        "funnel": "Funnel",
+        "funnelHint": "Public HTTPS via Tailscale Funnel (internet)",
+        "binaryNotFound": "Tailscale binary not found in PATH or /Applications.\nEnsure Tailscale is installed from:\n  https://tailscale.com/download/mac\n\nYou can continue setup, but serve/funnel will fail at runtime.",
+        "warningLabel": "Tailscale Warning",
+        "docs": "Docs:\nhttps://docs.openclaw.ai/gateway/tailscale\nhttps://docs.openclaw.ai/web",
+        "docsLabel": "Tailscale",
+        "resetPrompt": "Reset Tailscale serve/funnel on exit?",
+        "requiresLoopback": "Tailscale requires bind=loopback. Adjusting bind to loopback.",
+        "funnelRequiresPassword": "Tailscale funnel requires password auth.",
+        "noteLabel": "Note"
+      },
+      "token": {
+        "prompt": "Gateway token (blank to generate)",
+        "placeholder": "Needed for multi-machine or non-loopback access"
+      },
+      "password": {
+        "prompt": "Gateway password",
+        "required": "Required"
+      }
     }
   },
 
@@ -204,7 +355,45 @@
       "label": "Gateway auth",
       "missingToken": "Gateway auth is off or missing a token. Token auth is now the recommended default (including loopback).",
       "generateToken": "Generate and configure a gateway token now?",
-      "tokenConfigured": "Gateway token configured."
+      "tokenConfigured": "Gateway token configured.",
+      "profilesLabel": "Auth profiles",
+      "updateOAuthProfile": "Update Anthropic OAuth profile id in config now?",
+      "deprecatedCliProfiles": "Deprecated external CLI auth profiles detected (no longer supported):",
+      "deprecatedClaudeHint": "- {{profileId}} (Anthropic): use setup-token → {{command}}",
+      "deprecatedCodexHint": "- {{profileId}} (OpenAI Codex): use OAuth → {{command}}",
+      "removeDeprecated": "Remove deprecated CLI auth profiles now?",
+      "removedFromConfig": "- removed {{profileId}} from config",
+      "cooldownsLabel": "Auth profile cooldowns",
+      "cooldownWait": "Wait for cooldown or switch provider.",
+      "cooldownBilling": "Top up credits (provider billing) or switch provider.",
+      "refreshExpiring": "Refresh expiring OAuth tokens now? (static tokens need re-auth)",
+      "refreshErrors": "OAuth refresh errors",
+      "modelAuthLabel": "Model auth",
+      "deprecatedProfileHint": "Deprecated profile. Use {{command}} or {{command2}}.",
+      "reauthHint": "Re-auth via `{{command}}` or `{{command2}}`."
+    },
+
+    "service": {
+      "label": "Gateway service",
+      "notInstalled": "Gateway service not installed.",
+      "installNow": "Install gateway service now?",
+      "runtimePrompt": "Gateway service runtime",
+      "installFailed": "Gateway service install failed: {{error}}",
+      "startNow": "Start gateway service now?",
+      "restartNow": "Restart gateway service now?",
+      "notRunning": "Gateway not running.",
+      "connectionLabel": "Gateway connection",
+      "launchAgentNote": "LaunchAgent loaded; stopping requires \"{{command}}\" or launchctl bootout gui/$UID/{{label}}.",
+      "launchAgentLabel": "{{title}} LaunchAgent",
+      "launchAgentNotLoaded": "LaunchAgent is listed but not loaded in launchd.",
+      "repairLaunchAgent": "Repair {{title}} LaunchAgent bootstrap now?",
+      "bootstrapping": "Bootstrapping {{title}} LaunchAgent...",
+      "bootstrapFailed": "{{title}} LaunchAgent bootstrap failed: {{detail}}",
+      "stillNotLoaded": "{{title}} LaunchAgent still not loaded after repair.",
+      "repaired": "{{title}} LaunchAgent repaired.",
+      "portLabel": "Gateway port",
+      "lastError": "Last gateway error: {{error}}",
+      "runtime": "Runtime: {{summary}}"
     },
 
     "legacyState": {
