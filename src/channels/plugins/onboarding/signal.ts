@@ -5,6 +5,7 @@ import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onb
 import { formatCliCommand } from "../../../cli/command-format.js";
 import { detectBinary } from "../../../commands/onboard-helpers.js";
 import { installSignalCli } from "../../../commands/signal-install.js";
+import { t } from "../../../i18n/index.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../../routing/session-key.js";
 import {
   listSignalAccountIds,
@@ -91,24 +92,19 @@ async function promptSignalAllowFrom(params: {
   const resolved = resolveSignalAccount({ cfg: params.cfg, accountId });
   const existing = resolved.config.allowFrom ?? [];
   await params.prompter.note(
-    [
-      "Allowlist Signal DMs by sender id.",
-      "Examples:",
-      "- +15555550123",
-      "- uuid:123e4567-e89b-12d3-a456-426614174000",
-      "Multiple entries: comma-separated.",
-      `Docs: ${formatDocsLink("/signal", "signal")}`,
-    ].join("\n"),
-    "Signal allowlist",
+    t("channelOnboarding.signal.allowlistHelp", {
+      docsLink: formatDocsLink("/signal", "signal"),
+    }),
+    t("channelOnboarding.signal.allowlistLabel"),
   );
   const entry = await params.prompter.text({
-    message: "Signal allowFrom (E.164 or uuid)",
-    placeholder: "+15555550123, uuid:123e4567-e89b-12d3-a456-426614174000",
+    message: t("channelOnboarding.signal.allowFromPrompt"),
+    placeholder: t("channelOnboarding.signal.allowFromPlaceholder"),
     initialValue: existing[0] ? String(existing[0]) : undefined,
     validate: (value) => {
       const raw = String(value ?? "").trim();
       if (!raw) {
-        return "Required";
+        return t("channelOnboarding.common.required");
       }
       const parts = parseSignalAllowFromInput(raw);
       for (const part of parts) {
@@ -117,7 +113,7 @@ async function promptSignalAllowFrom(params: {
         }
         if (part.toLowerCase().startsWith("uuid:")) {
           if (!part.slice("uuid:".length).trim()) {
-            return "Invalid uuid entry";
+            return t("channelOnboarding.signal.invalidUuid");
           }
           continue;
         }
@@ -125,7 +121,7 @@ async function promptSignalAllowFrom(params: {
           continue;
         }
         if (!normalizeE164(part)) {
-          return `Invalid entry: ${part}`;
+          return t("channelOnboarding.signal.invalidEntry", { entry: part });
         }
       }
       return undefined;
@@ -172,10 +168,14 @@ export const signalOnboardingAdapter: ChannelOnboardingAdapter = {
       channel,
       configured,
       statusLines: [
-        `Signal: ${configured ? "configured" : "needs setup"}`,
-        `signal-cli: ${signalCliDetected ? "found" : "missing"} (${signalCliPath})`,
+        configured
+          ? t("channelOnboarding.signal.statusConfigured")
+          : t("channelOnboarding.signal.statusNeedsSetup"),
+        `${signalCliDetected ? t("channelOnboarding.signal.cliFound") : t("channelOnboarding.signal.cliMissing")} (${signalCliPath})`,
       ],
-      selectionHint: signalCliDetected ? "signal-cli found" : "signal-cli missing",
+      selectionHint: signalCliDetected
+        ? t("channelOnboarding.signal.cliFound")
+        : t("channelOnboarding.signal.cliMissing"),
       quickstartScore: signalCliDetected ? 1 : 0,
     };
   },
@@ -214,8 +214,8 @@ export const signalOnboardingAdapter: ChannelOnboardingAdapter = {
     if (options?.allowSignalInstall) {
       const wantsInstall = await prompter.confirm({
         message: cliDetected
-          ? "signal-cli detected. Reinstall/update now?"
-          : "signal-cli not found. Install now?",
+          ? t("channelOnboarding.signal.cliDetectedReinstall")
+          : t("channelOnboarding.signal.cliNotFoundInstall"),
         initialValue: !cliDetected,
       });
       if (wantsInstall) {
@@ -224,27 +224,36 @@ export const signalOnboardingAdapter: ChannelOnboardingAdapter = {
           if (result.ok && result.cliPath) {
             cliDetected = true;
             resolvedCliPath = result.cliPath;
-            await prompter.note(`Installed signal-cli at ${result.cliPath}`, "Signal");
+            await prompter.note(
+              t("channelOnboarding.signal.cliInstalled", { path: result.cliPath }),
+              t("channelOnboarding.signal.cliLabel"),
+            );
           } else if (!result.ok) {
-            await prompter.note(result.error ?? "signal-cli install failed.", "Signal");
+            await prompter.note(
+              result.error ?? t("channelOnboarding.signal.cliInstallFailed"),
+              t("channelOnboarding.signal.cliLabel"),
+            );
           }
         } catch (err) {
-          await prompter.note(`signal-cli install failed: ${String(err)}`, "Signal");
+          await prompter.note(
+            t("channelOnboarding.signal.cliInstallFailedError", { error: String(err) }),
+            t("channelOnboarding.signal.cliLabel"),
+          );
         }
       }
     }
 
     if (!cliDetected) {
       await prompter.note(
-        "signal-cli not found. Install it, then rerun this step or set channels.signal.cliPath.",
-        "Signal",
+        t("channelOnboarding.signal.cliNotFoundHint"),
+        t("channelOnboarding.signal.cliLabel"),
       );
     }
 
     let account = accountConfig.account ?? "";
     if (account) {
       const keep = await prompter.confirm({
-        message: `Signal account set (${account}). Keep it?`,
+        message: t("channelOnboarding.signal.accountSetKeep", { account }),
         initialValue: true,
       });
       if (!keep) {
@@ -255,8 +264,8 @@ export const signalOnboardingAdapter: ChannelOnboardingAdapter = {
     if (!account) {
       account = String(
         await prompter.text({
-          message: "Signal bot number (E.164)",
-          validate: (value) => (value?.trim() ? undefined : "Required"),
+          message: t("channelOnboarding.signal.botNumberPrompt"),
+          validate: (value) => (value?.trim() ? undefined : t("channelOnboarding.common.required")),
         }),
       ).trim();
     }
@@ -299,13 +308,13 @@ export const signalOnboardingAdapter: ChannelOnboardingAdapter = {
     }
 
     await prompter.note(
-      [
-        'Link device with: signal-cli link -n "OpenClaw"',
-        "Scan QR in Signal → Linked Devices",
-        `Then run: ${formatCliCommand("openclaw gateway call channels.status --params '{\"probe\":true}'")}`,
-        `Docs: ${formatDocsLink("/signal", "signal")}`,
-      ].join("\n"),
-      "Signal next steps",
+      t("channelOnboarding.signal.nextStepsHelp", {
+        statusCommand: formatCliCommand(
+          "openclaw gateway call channels.status --params '{\"probe\":true}'",
+        ),
+        docsLink: formatDocsLink("/signal", "signal"),
+      }),
+      t("channelOnboarding.signal.nextStepsLabel"),
     );
 
     return { cfg: next, accountId: signalAccountId };

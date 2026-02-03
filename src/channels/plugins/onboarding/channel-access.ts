@@ -1,4 +1,5 @@
 import type { WizardPrompter } from "../../../wizard/prompts.js";
+import { t } from "../../../i18n/index.js";
 
 export type ChannelAccessPolicy = "allowlist" | "open" | "disabled";
 
@@ -24,17 +25,17 @@ export async function promptChannelAccessPolicy(params: {
   allowDisabled?: boolean;
 }): Promise<ChannelAccessPolicy> {
   const options: Array<{ value: ChannelAccessPolicy; label: string }> = [
-    { value: "allowlist", label: "Allowlist (recommended)" },
+    { value: "allowlist", label: t("channelOnboarding.common.allowlistRecommended") },
   ];
   if (params.allowOpen !== false) {
-    options.push({ value: "open", label: "Open (allow all channels)" });
+    options.push({ value: "open", label: t("channelOnboarding.common.openAllowAll") });
   }
   if (params.allowDisabled !== false) {
-    options.push({ value: "disabled", label: "Disabled (block all channels)" });
+    options.push({ value: "disabled", label: t("channelOnboarding.common.disabledBlockAll") });
   }
   const initialValue = params.currentPolicy ?? "allowlist";
   return await params.prompter.select({
-    message: `${params.label} access`,
+    message: t("channelOnboarding.common.channelAccess", { label: params.label }),
     options,
     initialValue,
   });
@@ -51,7 +52,7 @@ export async function promptChannelAllowlist(params: {
       ? formatAllowlistEntries(params.currentEntries)
       : undefined;
   const raw = await params.prompter.text({
-    message: `${params.label} allowlist (comma-separated)`,
+    message: t("channelOnboarding.common.allowlistCommaSeparated", { label: params.label }),
     placeholder: params.placeholder,
     initialValue,
   });
@@ -73,8 +74,8 @@ export async function promptChannelAccessConfig(params: {
   const shouldPrompt = params.defaultPrompt ?? !hasEntries;
   const wants = await params.prompter.confirm({
     message: params.updatePrompt
-      ? `Update ${params.label} access?`
-      : `Configure ${params.label} access?`,
+      ? t("channelOnboarding.common.updateAccess", { label: params.label })
+      : t("channelOnboarding.common.configureAccess", { label: params.label }),
     initialValue: shouldPrompt,
   });
   if (!wants) {

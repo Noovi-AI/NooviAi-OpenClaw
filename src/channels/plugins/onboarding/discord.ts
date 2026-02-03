@@ -14,6 +14,7 @@ import {
   type DiscordChannelResolution,
 } from "../../../discord/resolve-channels.js";
 import { resolveDiscordUserAllowlist } from "../../../discord/resolve-users.js";
+import { t } from "../../../i18n/index.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../../routing/session-key.js";
 import { formatDocsLink } from "../../../terminal/links.js";
 import { promptChannelAccessConfig } from "./channel-access.js";
@@ -43,14 +44,10 @@ function setDiscordDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy) {
 
 async function noteDiscordTokenHelp(prompter: WizardPrompter): Promise<void> {
   await prompter.note(
-    [
-      "1) Discord Developer Portal → Applications → New Application",
-      "2) Bot → Add Bot → Reset Token → copy token",
-      "3) OAuth2 → URL Generator → scope 'bot' → invite to your server",
-      "Tip: enable Message Content Intent if you need message text. (Bot → Privileged Gateway Intents → Message Content Intent)",
-      `Docs: ${formatDocsLink("/discord", "discord")}`,
-    ].join("\n"),
-    "Discord bot token",
+    t("channelOnboarding.discord.botTokenHelp", {
+      docsLink: formatDocsLink("/discord", "discord"),
+    }),
+    t("channelOnboarding.discord.botTokenLabel"),
   );
 }
 
@@ -186,16 +183,10 @@ async function promptDiscordAllowFrom(params: {
   const token = resolved.token;
   const existing = params.cfg.channels?.discord?.dm?.allowFrom ?? [];
   await params.prompter.note(
-    [
-      "Allowlist Discord DMs by username (we resolve to user ids).",
-      "Examples:",
-      "- 123456789012345678",
-      "- @alice",
-      "- alice#1234",
-      "Multiple entries: comma-separated.",
-      `Docs: ${formatDocsLink("/discord", "discord")}`,
-    ].join("\n"),
-    "Discord allowlist",
+    t("channelOnboarding.discord.allowlistHelp", {
+      docsLink: formatDocsLink("/discord", "discord"),
+    }),
+    t("channelOnboarding.discord.allowlistLabel"),
   );
 
   const parseInputs = (value: string) => parseDiscordAllowFromInput(value);
@@ -217,18 +208,19 @@ async function promptDiscordAllowFrom(params: {
 
   while (true) {
     const entry = await params.prompter.text({
-      message: "Discord allowFrom (usernames or ids)",
-      placeholder: "@alice, 123456789012345678",
+      message: t("channelOnboarding.discord.allowFromPrompt"),
+      placeholder: t("channelOnboarding.discord.allowFromPlaceholder"),
       initialValue: existing[0] ? String(existing[0]) : undefined,
-      validate: (value) => (String(value ?? "").trim() ? undefined : "Required"),
+      validate: (value) =>
+        String(value ?? "").trim() ? undefined : t("channelOnboarding.common.required"),
     });
     const parts = parseInputs(String(entry));
     if (!token) {
       const ids = parts.map(parseId).filter(Boolean) as string[];
       if (ids.length !== parts.length) {
         await params.prompter.note(
-          "Bot token missing; use numeric user ids (or mention form) only.",
-          "Discord allowlist",
+          t("channelOnboarding.discord.tokenMissing"),
+          t("channelOnboarding.discord.allowlistLabel"),
         );
         continue;
       }
@@ -243,14 +235,19 @@ async function promptDiscordAllowFrom(params: {
       entries: parts,
     }).catch(() => null);
     if (!results) {
-      await params.prompter.note("Failed to resolve usernames. Try again.", "Discord allowlist");
+      await params.prompter.note(
+        t("channelOnboarding.discord.failedResolve"),
+        t("channelOnboarding.discord.allowlistLabel"),
+      );
       continue;
     }
     const unresolved = results.filter((res) => !res.resolved || !res.id);
     if (unresolved.length > 0) {
       await params.prompter.note(
-        `Could not resolve: ${unresolved.map((res) => res.input).join(", ")}`,
-        "Discord allowlist",
+        t("channelOnboarding.discord.couldNotResolve", {
+          unresolved: unresolved.map((res) => res.input).join(", "),
+        }),
+        t("channelOnboarding.discord.allowlistLabel"),
       );
       continue;
     }
@@ -279,8 +276,14 @@ export const discordOnboardingAdapter: ChannelOnboardingAdapter = {
     return {
       channel,
       configured,
-      statusLines: [`Discord: ${configured ? "configured" : "needs token"}`],
-      selectionHint: configured ? "configured" : "needs token",
+      statusLines: [
+        configured
+          ? t("channelOnboarding.discord.statusConfigured")
+          : t("channelOnboarding.discord.statusNeedsToken"),
+      ],
+      selectionHint: configured
+        ? t("channelOnboarding.common.configured")
+        : t("channelOnboarding.common.needsToken"),
       quickstartScore: configured ? 2 : 1,
     };
   },
@@ -317,7 +320,7 @@ export const discordOnboardingAdapter: ChannelOnboardingAdapter = {
     }
     if (canUseEnv && !resolvedAccount.config.token) {
       const keepEnv = await prompter.confirm({
-        message: "DISCORD_BOT_TOKEN detected. Use env var?",
+        message: t("channelOnboarding.common.envVarDetected", { envVar: "DISCORD_BOT_TOKEN" }),
         initialValue: true,
       });
       if (keepEnv) {
@@ -331,29 +334,31 @@ export const discordOnboardingAdapter: ChannelOnboardingAdapter = {
       } else {
         token = String(
           await prompter.text({
-            message: "Enter Discord bot token",
-            validate: (value) => (value?.trim() ? undefined : "Required"),
+            message: t("channelOnboarding.common.enterToken", { channel: "Discord" }),
+            validate: (value) =>
+              value?.trim() ? undefined : t("channelOnboarding.common.required"),
           }),
         ).trim();
       }
     } else if (hasConfigToken) {
       const keep = await prompter.confirm({
-        message: "Discord token already configured. Keep it?",
+        message: t("channelOnboarding.common.tokenAlreadyConfigured", { channel: "Discord" }),
         initialValue: true,
       });
       if (!keep) {
         token = String(
           await prompter.text({
-            message: "Enter Discord bot token",
-            validate: (value) => (value?.trim() ? undefined : "Required"),
+            message: t("channelOnboarding.common.enterToken", { channel: "Discord" }),
+            validate: (value) =>
+              value?.trim() ? undefined : t("channelOnboarding.common.required"),
           }),
         ).trim();
       }
     } else {
       token = String(
         await prompter.text({
-          message: "Enter Discord bot token",
-          validate: (value) => (value?.trim() ? undefined : "Required"),
+          message: t("channelOnboarding.common.enterToken", { channel: "Discord" }),
+          validate: (value) => (value?.trim() ? undefined : t("channelOnboarding.common.required")),
         }),
       ).trim();
     }
@@ -436,29 +441,37 @@ export const discordOnboardingAdapter: ChannelOnboardingAdapter = {
               const summary: string[] = [];
               if (resolvedChannels.length > 0) {
                 summary.push(
-                  `Resolved channels: ${resolvedChannels
-                    .map((entry) => entry.channelId)
-                    .filter(Boolean)
-                    .join(", ")}`,
+                  t("channelOnboarding.discord.resolvedChannels", {
+                    channels: resolvedChannels
+                      .map((entry) => entry.channelId)
+                      .filter(Boolean)
+                      .join(", "),
+                  }),
                 );
               }
               if (resolvedGuilds.length > 0) {
                 summary.push(
-                  `Resolved guilds: ${resolvedGuilds
-                    .map((entry) => entry.guildId)
-                    .filter(Boolean)
-                    .join(", ")}`,
+                  t("channelOnboarding.discord.resolvedGuilds", {
+                    guilds: resolvedGuilds
+                      .map((entry) => entry.guildId)
+                      .filter(Boolean)
+                      .join(", "),
+                  }),
                 );
               }
               if (unresolved.length > 0) {
-                summary.push(`Unresolved (kept as typed): ${unresolved.join(", ")}`);
+                summary.push(
+                  t("channelOnboarding.discord.unresolvedKept", {
+                    unresolved: unresolved.join(", "),
+                  }),
+                );
               }
-              await prompter.note(summary.join("\n"), "Discord channels");
+              await prompter.note(summary.join("\n"), t("channelOnboarding.discord.channelsLabel"));
             }
           } catch (err) {
             await prompter.note(
-              `Channel lookup failed; keeping entries as typed. ${String(err)}`,
-              "Discord channels",
+              t("channelOnboarding.discord.channelLookupFailed", { error: String(err) }),
+              t("channelOnboarding.discord.channelsLabel"),
             );
           }
         }

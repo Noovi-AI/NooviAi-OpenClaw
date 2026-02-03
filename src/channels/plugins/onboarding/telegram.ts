@@ -3,6 +3,7 @@ import type { DmPolicy } from "../../../config/types.js";
 import type { WizardPrompter } from "../../../wizard/prompts.js";
 import type { ChannelOnboardingAdapter, ChannelOnboardingDmPolicy } from "../onboarding-types.js";
 import { formatCliCommand } from "../../../cli/command-format.js";
+import { t } from "../../../i18n/index.js";
 import { DEFAULT_ACCOUNT_ID, normalizeAccountId } from "../../../routing/session-key.js";
 import {
   listTelegramAccountIds,
@@ -32,28 +33,20 @@ function setTelegramDmPolicy(cfg: OpenClawConfig, dmPolicy: DmPolicy) {
 
 async function noteTelegramTokenHelp(prompter: WizardPrompter): Promise<void> {
   await prompter.note(
-    [
-      "1) Open Telegram and chat with @BotFather",
-      "2) Run /newbot (or /mybots)",
-      "3) Copy the token (looks like 123456:ABC...)",
-      "Tip: you can also set TELEGRAM_BOT_TOKEN in your env.",
-      `Docs: ${formatDocsLink("/telegram")}`,
-      "Website: https://openclaw.ai",
-    ].join("\n"),
-    "Telegram bot token",
+    t("channelOnboarding.telegram.botTokenHelp", {
+      docsLink: formatDocsLink("/telegram"),
+    }),
+    t("channelOnboarding.telegram.botTokenLabel"),
   );
 }
 
 async function noteTelegramUserIdHelp(prompter: WizardPrompter): Promise<void> {
   await prompter.note(
-    [
-      `1) DM your bot, then read from.id in \`${formatCliCommand("openclaw logs --follow")}\` (safest)`,
-      "2) Or call https://api.telegram.org/bot<bot_token>/getUpdates and read message.from.id",
-      "3) Third-party: DM @userinfobot or @getidsbot",
-      `Docs: ${formatDocsLink("/telegram")}`,
-      "Website: https://openclaw.ai",
-    ].join("\n"),
-    "Telegram user id",
+    t("channelOnboarding.telegram.userIdHelp", {
+      logsCommand: formatCliCommand("openclaw logs --follow"),
+      docsLink: formatDocsLink("/telegram"),
+    }),
+    t("channelOnboarding.telegram.userIdLabel"),
   );
 }
 
@@ -69,7 +62,7 @@ async function promptTelegramAllowFrom(params: {
 
   const token = resolved.token;
   if (!token) {
-    await prompter.note("Telegram token missing; username lookup is unavailable.", "Telegram");
+    await prompter.note(t("channelOnboarding.telegram.tokenMissing"), "Telegram");
   }
 
   const resolveTelegramUserId = async (raw: string): Promise<string | null> => {
@@ -115,18 +108,19 @@ async function promptTelegramAllowFrom(params: {
   let resolvedIds: string[] = [];
   while (resolvedIds.length === 0) {
     const entry = await prompter.text({
-      message: "Telegram allowFrom (username or user id)",
-      placeholder: "@username",
+      message: t("channelOnboarding.telegram.allowFromPrompt"),
+      placeholder: t("channelOnboarding.telegram.allowFromPlaceholder"),
       initialValue: existingAllowFrom[0] ? String(existingAllowFrom[0]) : undefined,
-      validate: (value) => (String(value ?? "").trim() ? undefined : "Required"),
+      validate: (value) =>
+        String(value ?? "").trim() ? undefined : t("channelOnboarding.common.required"),
     });
     const parts = parseInput(String(entry));
     const results = await Promise.all(parts.map((part) => resolveTelegramUserId(part)));
     const unresolved = parts.filter((_, idx) => !results[idx]);
     if (unresolved.length > 0) {
       await prompter.note(
-        `Could not resolve: ${unresolved.join(", ")}. Use @username or numeric id.`,
-        "Telegram allowlist",
+        t("channelOnboarding.telegram.couldNotResolve", { unresolved: unresolved.join(", ") }),
+        t("channelOnboarding.telegram.allowlistLabel"),
       );
       continue;
     }
@@ -210,8 +204,14 @@ export const telegramOnboardingAdapter: ChannelOnboardingAdapter = {
     return {
       channel,
       configured,
-      statusLines: [`Telegram: ${configured ? "configured" : "needs token"}`],
-      selectionHint: configured ? "recommended · configured" : "recommended · newcomer-friendly",
+      statusLines: [
+        configured
+          ? t("channelOnboarding.telegram.statusConfigured")
+          : t("channelOnboarding.telegram.statusNeedsToken"),
+      ],
+      selectionHint: configured
+        ? t("channelOnboarding.telegram.recommendedConfigured")
+        : t("channelOnboarding.telegram.recommendedNewcomer"),
       quickstartScore: configured ? 1 : 10,
     };
   },
@@ -256,7 +256,7 @@ export const telegramOnboardingAdapter: ChannelOnboardingAdapter = {
     }
     if (canUseEnv && !resolvedAccount.config.botToken) {
       const keepEnv = await prompter.confirm({
-        message: "TELEGRAM_BOT_TOKEN detected. Use env var?",
+        message: t("channelOnboarding.common.envVarDetected", { envVar: "TELEGRAM_BOT_TOKEN" }),
         initialValue: true,
       });
       if (keepEnv) {
@@ -273,29 +273,31 @@ export const telegramOnboardingAdapter: ChannelOnboardingAdapter = {
       } else {
         token = String(
           await prompter.text({
-            message: "Enter Telegram bot token",
-            validate: (value) => (value?.trim() ? undefined : "Required"),
+            message: t("channelOnboarding.common.enterToken", { channel: "Telegram" }),
+            validate: (value) =>
+              value?.trim() ? undefined : t("channelOnboarding.common.required"),
           }),
         ).trim();
       }
     } else if (hasConfigToken) {
       const keep = await prompter.confirm({
-        message: "Telegram token already configured. Keep it?",
+        message: t("channelOnboarding.common.tokenAlreadyConfigured", { channel: "Telegram" }),
         initialValue: true,
       });
       if (!keep) {
         token = String(
           await prompter.text({
-            message: "Enter Telegram bot token",
-            validate: (value) => (value?.trim() ? undefined : "Required"),
+            message: t("channelOnboarding.common.enterToken", { channel: "Telegram" }),
+            validate: (value) =>
+              value?.trim() ? undefined : t("channelOnboarding.common.required"),
           }),
         ).trim();
       }
     } else {
       token = String(
         await prompter.text({
-          message: "Enter Telegram bot token",
-          validate: (value) => (value?.trim() ? undefined : "Required"),
+          message: t("channelOnboarding.common.enterToken", { channel: "Telegram" }),
+          validate: (value) => (value?.trim() ? undefined : t("channelOnboarding.common.required")),
         }),
       ).trim();
     }
