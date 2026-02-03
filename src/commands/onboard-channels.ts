@@ -142,7 +142,7 @@ async function collectChannelStatus(params: {
         configured,
         statusLines: [`${meta.label}: ${statusLabel}`],
         selectionHint: configured
-          ? `${t("onboard.channels.configuredPluginDisabled")}`
+          ? t("onboard.channels.configuredPluginDisabled")
           : t("onboard.channels.notConfigured"),
         quickstartScore: 0,
       };

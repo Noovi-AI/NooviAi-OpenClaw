@@ -14,12 +14,14 @@ The WAHA plugin provides WhatsApp integration via the WAHA (WhatsApp HTTP API) s
 WAHA is a self-hosted HTTP API for WhatsApp that runs as a separate service. OpenClaw connects to WAHA via HTTP/webhooks, which then connects to WhatsApp using Baileys.
 
 **Use WAHA when:**
+
 - You need multi-instance support (multiple Gateway instances → single WAHA server)
 - You want decoupled architecture (Gateway and WhatsApp connection are separate)
 - You need centralized session management
 - You're already running WAHA for other applications
 
 **Use native WhatsApp when:**
+
 - You want the simplest setup (single instance, no external dependencies)
 - You need lower latency (direct connection)
 - You're running a single Gateway instance
@@ -109,6 +111,7 @@ The plugin registers a channel plugin with the following features:
 ### Status Probe
 
 The plugin includes a health check that:
+
 1. Connects to WAHA API
 2. Gets session status
 3. Returns session info if `status === "WORKING"`
@@ -155,14 +158,14 @@ The plugin handles inbound messages from WAHA webhooks:
 
 ```typescript
 // Supported webhook events:
-- "message"           // New message
-- "message.ack"       // Message acknowledgment
-- "message.reaction"  // Reaction to message
-- "message.edited"    // Edited message
-- "session.status"    // Session status changes
-- "group.v2.join"     // User joined group
-- "group.v2.leave"    // User left group
-- "poll.vote"         // Poll vote
+-"message" - // New message
+  "message.ack" - // Message acknowledgment
+  "message.reaction" - // Reaction to message
+  "message.edited" - // Edited message
+  "session.status" - // Session status changes
+  "group.v2.join" - // User joined group
+  "group.v2.leave" - // User left group
+  "poll.vote"; // Poll vote
 ```
 
 Webhook endpoint: `http://your-openclaw:18789/waha/webhook`
@@ -277,11 +280,13 @@ openclaw plugins list --diagnostics
 ### Session not connecting
 
 1. Verify WAHA server is running:
+
    ```bash
    curl http://localhost:3000/api/sessions
    ```
 
 2. Check WAHA logs:
+
    ```bash
    docker logs waha
    ```
@@ -291,11 +296,13 @@ openclaw plugins list --diagnostics
 ### Webhook not receiving messages
 
 1. Check OpenClaw is listening:
+
    ```bash
    curl http://localhost:18789/waha/webhook
    ```
 
 2. Check WAHA webhook config:
+
    ```bash
    curl http://localhost:3000/api/sessions/default/webhooks \
      -H "X-Api-Key: your-waha-api-key"

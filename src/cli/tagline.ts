@@ -1,4 +1,4 @@
-import { t, getLocale } from "../i18n/index.js";
+import { t } from "../i18n/index.js";
 
 const DEFAULT_TAGLINE = "All your chats, one OpenClaw.";
 
@@ -251,27 +251,6 @@ export function activeTaglines(options: TaglineOptions = {}): string[] {
   const today = options.now ? options.now() : new Date();
   const filtered = TAGLINES.filter((tagline) => isTaglineActive(tagline, today));
   return filtered.length > 0 ? filtered : TAGLINES;
-}
-
-/**
- * Get translated taglines based on current locale
- * Returns localized taglines if available, otherwise falls back to English
- */
-function getLocalizedTaglines(): string[] {
-  const locale = getLocale();
-  if (locale === "en") {
-    return TAGLINES;
-  }
-
-  // Try to get translated taglines array
-  const translatedTaglines = t("banner.taglines");
-
-  // If translation returns the key itself or is not an array-like string, use defaults
-  if (translatedTaglines === "banner.taglines" || !translatedTaglines.startsWith("[")) {
-    return TAGLINES;
-  }
-
-  return TAGLINES; // For now, use original taglines as they're complex with holidays
 }
 
 /**

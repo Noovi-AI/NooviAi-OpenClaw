@@ -13,8 +13,8 @@ export const SUPPORTED_LOCALES: readonly Locale[] = ["en", "pt"] as const;
 
 /** Locale display names */
 export const LOCALE_NAMES: Record<Locale, string> = {
-	en: "English",
-	pt: "Portugues (Brasil)",
+  en: "English",
+  pt: "Portugues (Brasil)",
 };
 
 /**
@@ -26,7 +26,7 @@ export type TranslationParams = Record<string, string | number | boolean>;
  * Translation dictionary structure (nested keys)
  */
 export type TranslationDict = {
-	[key: string]: string | TranslationDict;
+  [key: string]: string | TranslationDict;
 };
 
 /**

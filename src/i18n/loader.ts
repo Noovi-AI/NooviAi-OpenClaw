@@ -81,7 +81,9 @@ export function detectSystemLocale(): Locale {
   ];
 
   for (const candidate of candidates) {
-    if (!candidate) continue;
+    if (!candidate) {
+      continue;
+    }
 
     // Handle formats like "pt_BR.UTF-8", "en_US", "pt", "en"
     const normalized = candidate.toLowerCase().split(".")[0]; // Remove encoding
@@ -105,7 +107,9 @@ export function detectSystemLocale(): Locale {
  * Validate and normalize a locale string
  */
 export function normalizeLocale(locale: string | undefined): Locale {
-  if (!locale) return DEFAULT_LOCALE;
+  if (!locale) {
+    return DEFAULT_LOCALE;
+  }
 
   const normalized = locale.toLowerCase().trim();
 

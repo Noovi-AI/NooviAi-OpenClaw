@@ -20,9 +20,9 @@
  */
 
 import type { FlatTranslationDict, Locale, TranslationParams } from "./types.js";
-import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "./types.js";
 import enTranslations from "./locales/en.js";
 import ptTranslations from "./locales/pt.js";
+import { DEFAULT_LOCALE, SUPPORTED_LOCALES } from "./types.js";
 
 // Module state
 let currentLocale: Locale = DEFAULT_LOCALE;
@@ -35,72 +35,71 @@ const localeChangeListeners: Set<(locale: Locale) => void> = new Set();
 /**
  * Flatten a nested translation dictionary into dot-notation keys
  */
-function flattenDict(
-	dict: Record<string, unknown>,
-	prefix = "",
-): FlatTranslationDict {
-	const result: FlatTranslationDict = {};
+function flattenDict(dict: Record<string, unknown>, prefix = ""): FlatTranslationDict {
+  const result: FlatTranslationDict = {};
 
-	for (const [key, value] of Object.entries(dict)) {
-		const fullKey = prefix ? `${prefix}.${key}` : key;
+  for (const [key, value] of Object.entries(dict)) {
+    const fullKey = prefix ? `${prefix}.${key}` : key;
 
-		if (typeof value === "string") {
-			result[fullKey] = value;
-		} else if (typeof value === "object" && value !== null) {
-			Object.assign(result, flattenDict(value as Record<string, unknown>, fullKey));
-		}
-	}
+    if (typeof value === "string") {
+      result[fullKey] = value;
+    } else if (typeof value === "object" && value !== null) {
+      Object.assign(result, flattenDict(value as Record<string, unknown>, fullKey));
+    }
+  }
 
-	return result;
+  return result;
 }
 
 /**
  * Detect browser locale
  */
 function detectBrowserLocale(): Locale {
-	// Check localStorage first
-	const stored = localStorage.getItem("openclaw-language");
-	if (stored && SUPPORTED_LOCALES.includes(stored as Locale)) {
-		return stored as Locale;
-	}
+  // Check localStorage first
+  const stored = localStorage.getItem("openclaw-language");
+  if (stored && SUPPORTED_LOCALES.includes(stored as Locale)) {
+    return stored as Locale;
+  }
 
-	// Check browser language
-	const browserLang = navigator.language.toLowerCase();
+  // Check browser language
+  const browserLang = navigator.language.toLowerCase();
 
-	// Check for exact match
-	if (SUPPORTED_LOCALES.includes(browserLang as Locale)) {
-		return browserLang as Locale;
-	}
+  // Check for exact match
+  if (SUPPORTED_LOCALES.includes(browserLang as Locale)) {
+    return browserLang as Locale;
+  }
 
-	// Check for language prefix (e.g., "pt-BR" -> "pt")
-	const langPrefix = browserLang.split("-")[0];
-	if (SUPPORTED_LOCALES.includes(langPrefix as Locale)) {
-		return langPrefix as Locale;
-	}
+  // Check for language prefix (e.g., "pt-BR" -> "pt")
+  const langPrefix = browserLang.split("-")[0];
+  if (SUPPORTED_LOCALES.includes(langPrefix as Locale)) {
+    return langPrefix as Locale;
+  }
 
-	return DEFAULT_LOCALE;
+  return DEFAULT_LOCALE;
 }
 
 /**
  * Normalize a locale string
  */
 function normalizeLocale(locale: string | undefined): Locale {
-	if (!locale) return DEFAULT_LOCALE;
+  if (!locale) {
+    return DEFAULT_LOCALE;
+  }
 
-	const normalized = locale.toLowerCase().trim();
+  const normalized = locale.toLowerCase().trim();
 
-	// Direct match
-	if (SUPPORTED_LOCALES.includes(normalized as Locale)) {
-		return normalized as Locale;
-	}
+  // Direct match
+  if (SUPPORTED_LOCALES.includes(normalized as Locale)) {
+    return normalized as Locale;
+  }
 
-	// Language prefix match
-	const langPrefix = normalized.split(/[-_]/)[0];
-	if (SUPPORTED_LOCALES.includes(langPrefix as Locale)) {
-		return langPrefix as Locale;
-	}
+  // Language prefix match
+  const langPrefix = normalized.split(/[-_]/)[0];
+  if (SUPPORTED_LOCALES.includes(langPrefix as Locale)) {
+    return langPrefix as Locale;
+  }
 
-	return DEFAULT_LOCALE;
+  return DEFAULT_LOCALE;
 }
 
 /**
@@ -109,56 +108,58 @@ function normalizeLocale(locale: string | undefined): Locale {
  * @param locale - Explicit locale to use (overrides auto-detection)
  */
 export async function initI18n(locale?: string): Promise<void> {
-	// Load translations
-	translations.set("en", flattenDict(enTranslations));
-	translations.set("pt", flattenDict(ptTranslations));
+  // Load translations
+  translations.set("en", flattenDict(enTranslations));
+  translations.set("pt", flattenDict(ptTranslations));
 
-	// Determine locale
-	if (locale) {
-		currentLocale = normalizeLocale(locale);
-	} else {
-		currentLocale = detectBrowserLocale();
-	}
+  // Determine locale
+  if (locale) {
+    currentLocale = normalizeLocale(locale);
+  } else {
+    currentLocale = detectBrowserLocale();
+  }
 
-	initialized = true;
+  initialized = true;
 }
 
 /**
  * Get the current locale
  */
 export function getLocale(): Locale {
-	return currentLocale;
+  return currentLocale;
 }
 
 /**
  * Set the current locale and persist to localStorage
  */
 export function setLocale(locale: string): void {
-	const normalized = normalizeLocale(locale);
-	if (normalized === currentLocale) return;
+  const normalized = normalizeLocale(locale);
+  if (normalized === currentLocale) {
+    return;
+  }
 
-	currentLocale = normalized;
-	localStorage.setItem("openclaw-language", normalized);
+  currentLocale = normalized;
+  localStorage.setItem("openclaw-language", normalized);
 
-	// Notify listeners
-	for (const listener of localeChangeListeners) {
-		listener(normalized);
-	}
+  // Notify listeners
+  for (const listener of localeChangeListeners) {
+    listener(normalized);
+  }
 }
 
 /**
  * Subscribe to locale changes
  */
 export function onLocaleChange(callback: (locale: Locale) => void): () => void {
-	localeChangeListeners.add(callback);
-	return () => localeChangeListeners.delete(callback);
+  localeChangeListeners.add(callback);
+  return () => localeChangeListeners.delete(callback);
 }
 
 /**
  * Check if i18n is initialized
  */
 export function isInitialized(): boolean {
-	return initialized;
+  return initialized;
 }
 
 /**
@@ -167,14 +168,16 @@ export function isInitialized(): boolean {
  * Supports {{variable}} syntax
  */
 function interpolate(template: string, params?: TranslationParams): string {
-	if (!params) return template;
+  if (!params) {
+    return template;
+  }
 
-	return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
-		if (key in params) {
-			return String(params[key]);
-		}
-		return match;
-	});
+  return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
+    if (key in params) {
+      return String(params[key]);
+    }
+    return match;
+  });
 }
 
 /**
@@ -186,31 +189,31 @@ function interpolate(template: string, params?: TranslationParams): string {
  * @returns Translated string, fallback if provided, or key if not found
  */
 export function t(key: string, params?: TranslationParams, fallback?: string): string {
-	// Auto-initialize if not done
-	if (!initialized) {
-		// Synchronous fallback - load translations inline
-		translations.set("en", flattenDict(enTranslations));
-		translations.set("pt", flattenDict(ptTranslations));
-		currentLocale = detectBrowserLocale();
-		initialized = true;
-	}
+  // Auto-initialize if not done
+  if (!initialized) {
+    // Synchronous fallback - load translations inline
+    translations.set("en", flattenDict(enTranslations));
+    translations.set("pt", flattenDict(ptTranslations));
+    currentLocale = detectBrowserLocale();
+    initialized = true;
+  }
 
-	// Try current locale first
-	const currentDict = translations.get(currentLocale);
-	if (currentDict && key in currentDict) {
-		return interpolate(currentDict[key], params);
-	}
+  // Try current locale first
+  const currentDict = translations.get(currentLocale);
+  if (currentDict && key in currentDict) {
+    return interpolate(currentDict[key], params);
+  }
 
-	// Fall back to English
-	if (currentLocale !== DEFAULT_LOCALE) {
-		const defaultDict = translations.get(DEFAULT_LOCALE);
-		if (defaultDict && key in defaultDict) {
-			return interpolate(defaultDict[key], params);
-		}
-	}
+  // Fall back to English
+  if (currentLocale !== DEFAULT_LOCALE) {
+    const defaultDict = translations.get(DEFAULT_LOCALE);
+    if (defaultDict && key in defaultDict) {
+      return interpolate(defaultDict[key], params);
+    }
+  }
 
-	// Return fallback or key as last resort
-	return fallback ? interpolate(fallback, params) : interpolate(key, params);
+  // Return fallback or key as last resort
+  return fallback ? interpolate(fallback, params) : interpolate(key, params);
 }
 
 // Re-export types and constants

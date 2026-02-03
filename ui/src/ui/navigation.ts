@@ -1,5 +1,5 @@
-import { t } from "../i18n/index.js";
 import type { IconName } from "./icons.js";
+import { t } from "../i18n/index.js";
 
 export const TAB_GROUPS = [
   { label: "Chat", tabs: ["chat"] },

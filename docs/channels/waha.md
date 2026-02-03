@@ -12,6 +12,7 @@ Status: Requires a separate WAHA server (self-hosted or cloud).
 ## Quick setup
 
 1. **Deploy a WAHA server** (self-hosted or cloud):
+
    ```bash
    docker run -d \
      --name waha \
@@ -45,6 +46,7 @@ Status: Requires a separate WAHA server (self-hosted or cloud).
 ```
 
 3. **Login with QR code** (via CLI):
+
    ```bash
    openclaw channels login waha
    ```
@@ -79,9 +81,11 @@ docker run -d \
 ### Cloud Service
 
 Use a managed WAHA cloud service:
+
 - https://waha.devlike.pro/
 
 Get your:
+
 - Server URL (e.g., `https://connect.example.com`)
 - API Key
 - Session name
@@ -161,6 +165,7 @@ openclaw channels login waha
 ```
 
 The CLI will:
+
 1. Check if WAHA is configured
 2. Create/start the session if needed
 3. Display the QR code (or provide instructions to scan on the WAHA UI)
@@ -257,12 +262,14 @@ curl -X POST http://localhost:3000/api/sessions/default/start \
 ### Webhook not receiving messages
 
 1. **Check WAHA webhook config**:
+
    ```bash
    curl http://localhost:3000/api/sessions/default/webhooks \
      -H "X-Api-Key: your-waha-api-key"
    ```
 
 2. **Check OpenClaw logs**:
+
    ```bash
    openclaw logs --follow | grep waha
    ```
@@ -302,14 +309,14 @@ Increase timeout in config:
 
 ## WAHA vs Native WhatsApp
 
-| Feature | WAHA (HTTP API) | Native WhatsApp (Baileys) |
-|---------|-----------------|--------------------------|
-| **Architecture** | Decoupled via HTTP | Direct connection |
-| **Dependencies** | Requires WAHA server | Self-contained |
-| **Scalability** | High (shared WAHA) | Per-process |
-| **Multi-instance** | Yes (multiple Gateway → 1 WAHA) | No (each instance owns session) |
-| **Latency** | Higher (HTTP hop) | Lower (direct) |
-| **Setup complexity** | Higher (deploy WAHA) | Lower (QR only) |
+| Feature              | WAHA (HTTP API)                 | Native WhatsApp (Baileys)       |
+| -------------------- | ------------------------------- | ------------------------------- |
+| **Architecture**     | Decoupled via HTTP              | Direct connection               |
+| **Dependencies**     | Requires WAHA server            | Self-contained                  |
+| **Scalability**      | High (shared WAHA)              | Per-process                     |
+| **Multi-instance**   | Yes (multiple Gateway → 1 WAHA) | No (each instance owns session) |
+| **Latency**          | Higher (HTTP hop)               | Lower (direct)                  |
+| **Setup complexity** | Higher (deploy WAHA)            | Lower (QR only)                 |
 
 ## API Reference
 

@@ -80,7 +80,9 @@ export function isInitialized(): boolean {
  * Example: "Hello, {{name}}!" with { name: "World" } => "Hello, World!"
  */
 function interpolate(template: string, params?: TranslationParams): string {
-  if (!params) return template;
+  if (!params) {
+    return template;
+  }
 
   return template.replace(/\{\{(\w+)\}\}/g, (match, key) => {
     if (key in params) {
@@ -147,7 +149,9 @@ export function getTranslationKeys(locale?: Locale): string[] {
  */
 export function getMissingKeys(locale?: Locale): string[] {
   const targetLocale = locale ?? currentLocale;
-  if (targetLocale === DEFAULT_LOCALE) return [];
+  if (targetLocale === DEFAULT_LOCALE) {
+    return [];
+  }
 
   const defaultKeys = getTranslationKeys(DEFAULT_LOCALE);
   const targetKeys = new Set(getTranslationKeys(targetLocale));

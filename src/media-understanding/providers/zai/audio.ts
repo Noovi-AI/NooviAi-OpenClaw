@@ -113,11 +113,9 @@ export async function convertAudioToWav(
     return { buffer: outputBuffer, fileName: outputFileName };
   } finally {
     // Cleanup temp files
-    try {
-      await fs.rm(tmpDir, { recursive: true, force: true });
-    } catch {
+    await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => {
       // Ignore cleanup errors
-    }
+    });
   }
 }
 
@@ -153,7 +151,9 @@ export async function transcribeZaiAudio(
     } catch (err) {
       // Re-throw with context about Z.AI format support
       const message = err instanceof Error ? err.message : String(err);
-      throw new Error(`Z.AI requires WAV or MP3 format. Conversion failed: ${message}`);
+      throw new Error(`Z.AI requires WAV or MP3 format. Conversion failed: ${message}`, {
+        cause: err,
+      });
     }
   }
 
