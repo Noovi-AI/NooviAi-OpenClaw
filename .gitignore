@@ -71,3 +71,7 @@ USER.md
 
 # local tooling
 .serena/
+
+# Local deployment configs
+docker-compose.static.yml
+nginx.conf
