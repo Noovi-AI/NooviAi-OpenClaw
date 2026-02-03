@@ -1,8 +1,11 @@
 /**
  * Copy i18n locale JSON files to dist during build
  *
- * This script copies the translation files from src/i18n/locales to dist/i18n/locales
+ * This script copies the translation files from src/i18n/locales to dist/locales
  * so they can be loaded at runtime.
+ *
+ * Note: The bundler puts the i18n code in dist/ (not dist/i18n/), so the loader
+ * looks for locales relative to dist/, hence we copy to dist/locales/.
  */
 
 import fs from "node:fs/promises";
@@ -13,7 +16,7 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."
 
 export function getI18nPaths(env = process.env) {
   const srcDir = env.OPENCLAW_I18N_SRC_DIR ?? path.join(repoRoot, "src", "i18n", "locales");
-  const outDir = env.OPENCLAW_I18N_OUT_DIR ?? path.join(repoRoot, "dist", "i18n", "locales");
+  const outDir = env.OPENCLAW_I18N_OUT_DIR ?? path.join(repoRoot, "dist", "locales");
   return { srcDir, outDir };
 }
 
