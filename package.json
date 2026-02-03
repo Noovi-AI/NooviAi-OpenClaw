@@ -70,7 +70,8 @@
     "dist/utils/**",
     "dist/web/**",
     "dist/whatsapp/**",
-    "dist/wizard/**"
+    "dist/wizard/**",
+    "dist/i18n/**"
   ],
   "type": "module",
   "main": "dist/index.js",
@@ -85,7 +86,7 @@
     "android:install": "cd apps/android && ./gradlew :app:installDebug",
     "android:run": "cd apps/android && ./gradlew :app:installDebug && adb shell am start -n ai.openclaw.android/.MainActivity",
     "android:test": "cd apps/android && ./gradlew :app:testDebugUnitTest",
-    "build": "pnpm canvas:a2ui:bundle && tsc -p tsconfig.json --noEmit false && node --import tsx scripts/canvas-a2ui-copy.ts && node --import tsx scripts/copy-hook-metadata.ts && node --import tsx scripts/write-build-info.ts",
+    "build": "pnpm canvas:a2ui:bundle && tsc -p tsconfig.json --noEmit false && node --import tsx scripts/canvas-a2ui-copy.ts && node --import tsx scripts/copy-hook-metadata.ts && node --import tsx scripts/copy-i18n-locales.ts && node --import tsx scripts/write-build-info.ts",
     "canvas:a2ui:bundle": "bash scripts/bundle-a2ui.sh",
     "check": "pnpm tsgo && pnpm lint && pnpm format",
     "check:loc": "node --import tsx scripts/check-ts-max-loc.ts --max 500",
@@ -96,6 +97,7 @@
     "docs:list": "node scripts/docs-list.js",
     "format": "oxfmt --check",
     "format:all": "pnpm format && pnpm format:swift",
+    "i18n:check": "node --import tsx scripts/i18n-check.ts",
     "format:fix": "oxfmt --write",
     "format:swift": "swiftformat --lint --config .swiftformat apps/macos/Sources apps/ios/Sources apps/shared/OpenClawKit/Sources",
     "gateway:dev": "OPENCLAW_SKIP_CHANNELS=1 CLAWDBOT_SKIP_CHANNELS=1 node scripts/run-node.mjs --dev gateway",

@@ -69,6 +69,19 @@ export function getVerboseFlag(argv: string[], options?: { includeDebug?: boolea
   return false;
 }
 
+export function getLanguageFlag(argv: string[]): string | undefined {
+  // Check for -l or --language
+  const short = getFlagValue(argv, "-l");
+  if (short !== undefined && short !== null) {
+    return short;
+  }
+  const long = getFlagValue(argv, "--language");
+  if (long !== undefined && long !== null) {
+    return long;
+  }
+  return undefined;
+}
+
 export function getPositiveIntFlagValue(argv: string[], name: string): number | null | undefined {
   const raw = getFlagValue(argv, name);
   if (raw === null || raw === undefined) {

@@ -1,0 +1,298 @@
+{
+  "common": {
+    "yes": "Yes",
+    "no": "No",
+    "cancel": "Cancel",
+    "continue": "Continue",
+    "skip": "Skip",
+    "back": "Back",
+    "done": "Done",
+    "error": "Error",
+    "warning": "Warning",
+    "info": "Info",
+    "success": "Success",
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "saved": "Saved",
+    "failed": "Failed",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "default": "Default",
+    "custom": "Custom",
+    "none": "None",
+    "all": "All",
+    "select": "Select",
+    "configure": "Configure",
+    "install": "Install",
+    "uninstall": "Uninstall",
+    "update": "Update",
+    "reset": "Reset",
+    "delete": "Delete",
+    "create": "Create",
+    "edit": "Edit",
+    "view": "View",
+    "close": "Close",
+    "open": "Open",
+    "start": "Start",
+    "stop": "Stop",
+    "restart": "Restart"
+  },
+
+  "onboard": {
+    "title": "OpenClaw onboarding",
+    "cancelled": "Setup cancelled.",
+
+    "security": {
+      "title": "Security",
+      "warningTitle": "Security warning — please read.",
+      "warning": "Security warning — please read.\n\nOpenClaw is a hobby project and still in beta. Expect sharp edges.\nThis bot can read files and run actions if tools are enabled.\nA bad prompt can trick it into doing unsafe things.\n\nIf you're not comfortable with basic security and access control, don't run OpenClaw.\nAsk someone experienced to help before enabling tools or exposing it to the internet.\n\nRecommended baseline:\n- Pairing/allowlists + mention gating.\n- Sandbox + least-privilege tools.\n- Keep secrets out of the agent's reachable filesystem.\n- Use the strongest available model for any bot with tools or untrusted inboxes.\n\nRun regularly:\nopenclaw security audit --deep\nopenclaw security audit --fix\n\nMust read: https://docs.openclaw.ai/gateway/security",
+      "confirm": "I understand this is powerful and inherently risky. Continue?",
+      "notAccepted": "risk not accepted"
+    },
+
+    "config": {
+      "invalidTitle": "Invalid config",
+      "existingTitle": "Existing config detected",
+      "issuesTitle": "Config issues",
+      "invalidMessage": "Config invalid. Run `{{command}}` to repair it, then re-run onboarding.",
+      "docsLink": "Docs: https://docs.openclaw.ai/gateway/configuration",
+      "handling": "Config handling",
+      "keepExisting": "Use existing values",
+      "updateValues": "Update values",
+      "reset": "Reset"
+    },
+
+    "reset": {
+      "scope": "Reset scope",
+      "configOnly": "Config only",
+      "configCredsSeessions": "Config + creds + sessions",
+      "full": "Full reset (config + creds + sessions + workspace)"
+    },
+
+    "flow": {
+      "title": "Onboarding mode",
+      "quickstart": "QuickStart",
+      "quickstartHint": "Configure details later via {{command}}.",
+      "advanced": "Manual",
+      "advancedHint": "Configure port, network, Tailscale, and auth options.",
+      "invalid": "Invalid --flow (use quickstart, manual, or advanced).",
+      "quickstartOnlyLocal": "QuickStart only supports local gateways. Switching to Manual mode."
+    },
+
+    "mode": {
+      "title": "What do you want to set up?",
+      "local": "Local gateway (this machine)",
+      "localHintReachable": "Gateway reachable ({{url}})",
+      "localHintUnreachable": "No gateway detected ({{url}})",
+      "remote": "Remote gateway (info-only)",
+      "remoteHintNone": "No remote URL configured yet",
+      "remoteHintReachable": "Gateway reachable ({{url}})",
+      "remoteHintUnreachable": "Configured but unreachable ({{url}})",
+      "remoteConfigured": "Remote gateway configured."
+    },
+
+    "workspace": {
+      "title": "Workspace directory"
+    },
+
+    "quickstart": {
+      "title": "QuickStart",
+      "keepingSettings": "Keeping your current gateway settings:",
+      "gatewayPort": "Gateway port: {{port}}",
+      "gatewayBind": "Gateway bind: {{bind}}",
+      "gatewayCustomIp": "Gateway custom IP: {{ip}}",
+      "gatewayAuth": "Gateway auth: {{auth}}",
+      "tailscaleExposure": "Tailscale exposure: {{mode}}",
+      "directToChannels": "Direct to chat channels.",
+      "bindLoopback": "Loopback (127.0.0.1)",
+      "bindLan": "LAN",
+      "bindCustom": "Custom IP",
+      "bindTailnet": "Tailnet (Tailscale IP)",
+      "bindAuto": "Auto",
+      "authToken": "Token (default)",
+      "authPassword": "Password",
+      "tailscaleOff": "Off",
+      "tailscaleServe": "Serve",
+      "tailscaleFunnel": "Funnel"
+    },
+
+    "channels": {
+      "title": "Channels",
+      "skipping": "Skipping channel setup."
+    },
+
+    "skills": {
+      "title": "Skills",
+      "skipping": "Skipping skills setup."
+    },
+
+    "completion": {
+      "installPrompt": "Install shell completion script?"
+    }
+  },
+
+  "gateway": {
+    "port": {
+      "title": "Gateway port",
+      "hint": "Default: {{default}}"
+    },
+    "bind": {
+      "title": "Gateway bind address",
+      "loopback": "Loopback only (127.0.0.1)",
+      "loopbackHint": "Most secure — local only",
+      "lan": "LAN (0.0.0.0)",
+      "lanHint": "Accessible from local network",
+      "tailnet": "Tailscale IP only",
+      "tailnetHint": "Requires Tailscale running",
+      "auto": "Auto-detect",
+      "autoHint": "Use Tailscale if available, else loopback",
+      "custom": "Custom",
+      "customHint": "Specify a custom IP address"
+    },
+    "customIp": {
+      "title": "Custom bind IP address"
+    },
+    "auth": {
+      "title": "Gateway authentication",
+      "token": "Token",
+      "tokenHint": "Generate a random token (recommended)",
+      "password": "Password",
+      "passwordHint": "Set a memorable password",
+      "passwordPrompt": "Gateway password",
+      "tokenRegenerate": "Regenerate token?",
+      "tokenCurrent": "Current token: {{token}}"
+    },
+    "tailscale": {
+      "title": "Tailscale exposure",
+      "off": "Off",
+      "offHint": "No Tailscale exposure",
+      "serve": "Serve",
+      "serveHint": "Expose to your Tailnet only (private)",
+      "funnel": "Funnel",
+      "funnelHint": "Expose to the internet (public URL)",
+      "resetOnExit": "Reset Tailscale on exit?",
+      "resetOnExitHint": "Stop Tailscale serve/funnel when gateway stops"
+    }
+  },
+
+  "doctor": {
+    "title": "OpenClaw Doctor",
+    "running": "Running diagnostics...",
+    "checking": "Checking {{item}}...",
+    "passed": "All checks passed",
+    "failed": "Some checks failed",
+    "issues": "{{count}} issue(s) found",
+    "noIssues": "No issues found",
+    "fixAvailable": "Run `{{command}}` to fix automatically",
+    "manualFix": "Manual fix required"
+  },
+
+  "status": {
+    "title": "OpenClaw Status",
+    "gateway": "Gateway",
+    "channels": "Channels",
+    "agents": "Agents",
+    "running": "Running",
+    "stopped": "Stopped",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "healthy": "Healthy",
+    "unhealthy": "Unhealthy"
+  },
+
+  "cli": {
+    "description": "OpenClaw - AI-powered messaging gateway",
+    "version": "Show version number",
+    "help": "Show help",
+    "language": "Set language (en, pt)",
+    "verbose": "Enable verbose output",
+
+    "onboard": {
+      "description": "Interactive setup wizard",
+      "workspace": "Workspace directory",
+      "flow": "Onboarding flow (quickstart, manual, advanced)",
+      "mode": "Gateway mode (local, remote)",
+      "authChoice": "Authentication method",
+      "gatewayPort": "Gateway port",
+      "gatewayBind": "Gateway bind mode (loopback, lan, tailnet, auto, custom)",
+      "gatewayAuth": "Gateway auth mode (token, password)",
+      "skipChannels": "Skip channel setup",
+      "skipSkills": "Skip skills setup",
+      "installDaemon": "Install system daemon",
+      "nonInteractive": "Non-interactive mode",
+      "acceptRisk": "Accept security risks"
+    },
+
+    "configure": {
+      "description": "Configure OpenClaw settings",
+      "auth": "Configure authentication",
+      "model": "Configure default model",
+      "gateway": "Configure gateway settings",
+      "channels": "Configure messaging channels",
+      "skills": "Configure skills"
+    },
+
+    "gateway": {
+      "description": "Gateway commands",
+      "run": "Start the gateway server",
+      "status": "Show gateway status",
+      "stop": "Stop the gateway"
+    },
+
+    "status": {
+      "description": "Show OpenClaw status",
+      "all": "Show all status information",
+      "deep": "Probe services for detailed status"
+    },
+
+    "health": {
+      "description": "Health check",
+      "json": "Output as JSON"
+    },
+
+    "doctor": {
+      "description": "Diagnose and fix issues",
+      "fix": "Automatically fix issues"
+    },
+
+    "agent": {
+      "description": "Agent commands",
+      "run": "Run an agent",
+      "list": "List agents",
+      "create": "Create a new agent"
+    },
+
+    "message": {
+      "description": "Message commands",
+      "send": "Send a message",
+      "broadcast": "Broadcast a message"
+    },
+
+    "memory": {
+      "description": "Memory commands",
+      "status": "Show memory status",
+      "search": "Search memory"
+    }
+  },
+
+  "errors": {
+    "generic": "An error occurred: {{message}}",
+    "notFound": "Not found: {{item}}",
+    "invalidInput": "Invalid input: {{message}}",
+    "networkError": "Network error: {{message}}",
+    "permissionDenied": "Permission denied: {{message}}",
+    "timeout": "Operation timed out",
+    "cancelled": "Operation cancelled",
+    "configError": "Configuration error: {{message}}",
+    "authError": "Authentication error: {{message}}"
+  },
+
+  "messages": {
+    "configUpdated": "Configuration updated",
+    "configSaved": "Configuration saved to {{path}}",
+    "gatewayStarted": "Gateway started on {{url}}",
+    "gatewayStopped": "Gateway stopped",
+    "channelConnected": "Connected to {{channel}}",
+    "channelDisconnected": "Disconnected from {{channel}}"
+  }
+}

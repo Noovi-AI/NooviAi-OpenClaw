@@ -42,7 +42,8 @@ export function configureProgramHelp(program: Command, ctx: ProgramContext) {
     .option(
       "--profile <name>",
       "Use a named profile (isolates OPENCLAW_STATE_DIR/OPENCLAW_CONFIG_PATH under ~/.openclaw-<name>)",
-    );
+    )
+    .option("-l, --language <lang>", "CLI language (en, pt)");
 
   program.option("--no-color", "Disable ANSI colors", false);
 

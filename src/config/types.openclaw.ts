@@ -24,6 +24,9 @@ import type { PluginsConfig } from "./types.plugins.js";
 import type { SkillsConfig } from "./types.skills.js";
 import type { ToolsConfig } from "./types.tools.js";
 
+/** Supported CLI languages */
+export type CliLanguage = "en" | "pt";
+
 export type OpenClawConfig = {
   meta?: {
     /** Last OpenClaw version that wrote this config. */
@@ -31,6 +34,8 @@ export type OpenClawConfig = {
     /** ISO timestamp when this config was last written. */
     lastTouchedAt?: string;
   };
+  /** CLI language (en, pt). Auto-detected from system if not set. */
+  language?: CliLanguage;
   auth?: AuthConfig;
   env?: {
     /** Opt-in: import missing secrets from a login shell environment (exec `$SHELL -l -c 'env -0'`). */

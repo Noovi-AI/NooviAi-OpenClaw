@@ -1,3 +1,4 @@
+import { t } from "../i18n/index.js";
 import type { IconName } from "./icons.js";
 
 export const TAB_GROUPS = [
@@ -150,27 +151,27 @@ export function iconForTab(tab: Tab): IconName {
 export function titleForTab(tab: Tab) {
   switch (tab) {
     case "overview":
-      return "Overview";
+      return t("nav.overview", {}, "Overview");
     case "channels":
-      return "Channels";
+      return t("nav.channels", {}, "Channels");
     case "instances":
-      return "Instances";
+      return t("nav.instances", {}, "Instances");
     case "sessions":
-      return "Sessions";
+      return t("nav.sessions", {}, "Sessions");
     case "cron":
-      return "Cron Jobs";
+      return t("nav.cron", {}, "Cron Jobs");
     case "skills":
-      return "Skills";
+      return t("nav.skills", {}, "Skills");
     case "nodes":
-      return "Nodes";
+      return t("nav.nodes", {}, "Nodes");
     case "chat":
-      return "Chat";
+      return t("nav.chat", {}, "Chat");
     case "config":
-      return "Config";
+      return t("nav.config", {}, "Config");
     case "debug":
-      return "Debug";
+      return t("nav.debug", {}, "Debug");
     case "logs":
-      return "Logs";
+      return t("nav.logs", {}, "Logs");
     default:
       return "Control";
   }

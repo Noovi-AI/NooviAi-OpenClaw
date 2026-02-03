@@ -1,0 +1,298 @@
+{
+  "common": {
+    "yes": "Sim",
+    "no": "Não",
+    "cancel": "Cancelar",
+    "continue": "Continuar",
+    "skip": "Pular",
+    "back": "Voltar",
+    "done": "Concluído",
+    "error": "Erro",
+    "warning": "Aviso",
+    "info": "Info",
+    "success": "Sucesso",
+    "loading": "Carregando...",
+    "saving": "Salvando...",
+    "saved": "Salvo",
+    "failed": "Falhou",
+    "enabled": "Ativado",
+    "disabled": "Desativado",
+    "default": "Padrão",
+    "custom": "Personalizado",
+    "none": "Nenhum",
+    "all": "Todos",
+    "select": "Selecionar",
+    "configure": "Configurar",
+    "install": "Instalar",
+    "uninstall": "Desinstalar",
+    "update": "Atualizar",
+    "reset": "Redefinir",
+    "delete": "Excluir",
+    "create": "Criar",
+    "edit": "Editar",
+    "view": "Visualizar",
+    "close": "Fechar",
+    "open": "Abrir",
+    "start": "Iniciar",
+    "stop": "Parar",
+    "restart": "Reiniciar"
+  },
+
+  "onboard": {
+    "title": "Configuração do OpenClaw",
+    "cancelled": "Configuração cancelada.",
+
+    "security": {
+      "title": "Segurança",
+      "warningTitle": "Aviso de segurança — por favor leia.",
+      "warning": "Aviso de segurança — por favor leia.\n\nOpenClaw é um projeto hobby e ainda está em beta. Espere arestas.\nEste bot pode ler arquivos e executar ações se as ferramentas estiverem habilitadas.\nUm prompt malicioso pode enganá-lo para fazer coisas inseguras.\n\nSe você não está confortável com segurança básica e controle de acesso, não execute o OpenClaw.\nPeça ajuda a alguém experiente antes de habilitar ferramentas ou expô-lo à internet.\n\nRecomendações básicas:\n- Pareamento/listas de permissão + controle de menções.\n- Sandbox + ferramentas com privilégios mínimos.\n- Mantenha segredos fora do sistema de arquivos acessível ao agente.\n- Use o modelo mais forte disponível para bots com ferramentas ou caixas de entrada não confiáveis.\n\nExecute regularmente:\nopenclaw security audit --deep\nopenclaw security audit --fix\n\nLeitura obrigatória: https://docs.openclaw.ai/gateway/security",
+      "confirm": "Eu entendo que isto é poderoso e inerentemente arriscado. Continuar?",
+      "notAccepted": "risco não aceito"
+    },
+
+    "config": {
+      "invalidTitle": "Configuração inválida",
+      "existingTitle": "Configuração existente detectada",
+      "issuesTitle": "Problemas de configuração",
+      "invalidMessage": "Configuração inválida. Execute `{{command}}` para reparar, então execute o onboarding novamente.",
+      "docsLink": "Docs: https://docs.openclaw.ai/gateway/configuration",
+      "handling": "Tratamento da configuração",
+      "keepExisting": "Usar valores existentes",
+      "updateValues": "Atualizar valores",
+      "reset": "Redefinir"
+    },
+
+    "reset": {
+      "scope": "Escopo da redefinição",
+      "configOnly": "Apenas configuração",
+      "configCredsSeessions": "Configuração + credenciais + sessões",
+      "full": "Redefinição completa (config + creds + sessões + workspace)"
+    },
+
+    "flow": {
+      "title": "Modo de configuração",
+      "quickstart": "Início Rápido",
+      "quickstartHint": "Configure detalhes depois via {{command}}.",
+      "advanced": "Manual",
+      "advancedHint": "Configure porta, rede, Tailscale e opções de autenticação.",
+      "invalid": "--flow inválido (use quickstart, manual ou advanced).",
+      "quickstartOnlyLocal": "Início Rápido suporta apenas gateways locais. Mudando para modo Manual."
+    },
+
+    "mode": {
+      "title": "O que você quer configurar?",
+      "local": "Gateway local (esta máquina)",
+      "localHintReachable": "Gateway acessível ({{url}})",
+      "localHintUnreachable": "Nenhum gateway detectado ({{url}})",
+      "remote": "Gateway remoto (somente informações)",
+      "remoteHintNone": "Nenhuma URL remota configurada ainda",
+      "remoteHintReachable": "Gateway acessível ({{url}})",
+      "remoteHintUnreachable": "Configurado mas inacessível ({{url}})",
+      "remoteConfigured": "Gateway remoto configurado."
+    },
+
+    "workspace": {
+      "title": "Diretório do workspace"
+    },
+
+    "quickstart": {
+      "title": "Início Rápido",
+      "keepingSettings": "Mantendo suas configurações atuais do gateway:",
+      "gatewayPort": "Porta do gateway: {{port}}",
+      "gatewayBind": "Bind do gateway: {{bind}}",
+      "gatewayCustomIp": "IP personalizado do gateway: {{ip}}",
+      "gatewayAuth": "Autenticação do gateway: {{auth}}",
+      "tailscaleExposure": "Exposição Tailscale: {{mode}}",
+      "directToChannels": "Direto para canais de chat.",
+      "bindLoopback": "Loopback (127.0.0.1)",
+      "bindLan": "LAN",
+      "bindCustom": "IP Personalizado",
+      "bindTailnet": "Tailnet (IP Tailscale)",
+      "bindAuto": "Automático",
+      "authToken": "Token (padrão)",
+      "authPassword": "Senha",
+      "tailscaleOff": "Desativado",
+      "tailscaleServe": "Serve",
+      "tailscaleFunnel": "Funnel"
+    },
+
+    "channels": {
+      "title": "Canais",
+      "skipping": "Pulando configuração de canais."
+    },
+
+    "skills": {
+      "title": "Skills",
+      "skipping": "Pulando configuração de skills."
+    },
+
+    "completion": {
+      "installPrompt": "Instalar script de auto-completar do shell?"
+    }
+  },
+
+  "gateway": {
+    "port": {
+      "title": "Porta do gateway",
+      "hint": "Padrão: {{default}}"
+    },
+    "bind": {
+      "title": "Endereço de bind do gateway",
+      "loopback": "Apenas loopback (127.0.0.1)",
+      "loopbackHint": "Mais seguro — apenas local",
+      "lan": "LAN (0.0.0.0)",
+      "lanHint": "Acessível da rede local",
+      "tailnet": "Apenas IP Tailscale",
+      "tailnetHint": "Requer Tailscale em execução",
+      "auto": "Auto-detectar",
+      "autoHint": "Usar Tailscale se disponível, senão loopback",
+      "custom": "Personalizado",
+      "customHint": "Especificar um endereço IP personalizado"
+    },
+    "customIp": {
+      "title": "Endereço IP personalizado de bind"
+    },
+    "auth": {
+      "title": "Autenticação do gateway",
+      "token": "Token",
+      "tokenHint": "Gerar um token aleatório (recomendado)",
+      "password": "Senha",
+      "passwordHint": "Definir uma senha memorável",
+      "passwordPrompt": "Senha do gateway",
+      "tokenRegenerate": "Regenerar token?",
+      "tokenCurrent": "Token atual: {{token}}"
+    },
+    "tailscale": {
+      "title": "Exposição Tailscale",
+      "off": "Desativado",
+      "offHint": "Sem exposição Tailscale",
+      "serve": "Serve",
+      "serveHint": "Expor apenas para sua Tailnet (privado)",
+      "funnel": "Funnel",
+      "funnelHint": "Expor para a internet (URL pública)",
+      "resetOnExit": "Redefinir Tailscale ao sair?",
+      "resetOnExitHint": "Parar Tailscale serve/funnel quando o gateway parar"
+    }
+  },
+
+  "doctor": {
+    "title": "OpenClaw Doctor",
+    "running": "Executando diagnósticos...",
+    "checking": "Verificando {{item}}...",
+    "passed": "Todas as verificações passaram",
+    "failed": "Algumas verificações falharam",
+    "issues": "{{count}} problema(s) encontrado(s)",
+    "noIssues": "Nenhum problema encontrado",
+    "fixAvailable": "Execute `{{command}}` para corrigir automaticamente",
+    "manualFix": "Correção manual necessária"
+  },
+
+  "status": {
+    "title": "Status do OpenClaw",
+    "gateway": "Gateway",
+    "channels": "Canais",
+    "agents": "Agentes",
+    "running": "Executando",
+    "stopped": "Parado",
+    "connected": "Conectado",
+    "disconnected": "Desconectado",
+    "healthy": "Saudável",
+    "unhealthy": "Não saudável"
+  },
+
+  "cli": {
+    "description": "OpenClaw - Gateway de mensagens com IA",
+    "version": "Mostrar número da versão",
+    "help": "Mostrar ajuda",
+    "language": "Definir idioma (en, pt)",
+    "verbose": "Habilitar saída detalhada",
+
+    "onboard": {
+      "description": "Assistente de configuração interativo",
+      "workspace": "Diretório do workspace",
+      "flow": "Fluxo de configuração (quickstart, manual, advanced)",
+      "mode": "Modo do gateway (local, remote)",
+      "authChoice": "Método de autenticação",
+      "gatewayPort": "Porta do gateway",
+      "gatewayBind": "Modo de bind do gateway (loopback, lan, tailnet, auto, custom)",
+      "gatewayAuth": "Modo de autenticação do gateway (token, password)",
+      "skipChannels": "Pular configuração de canais",
+      "skipSkills": "Pular configuração de skills",
+      "installDaemon": "Instalar daemon do sistema",
+      "nonInteractive": "Modo não-interativo",
+      "acceptRisk": "Aceitar riscos de segurança"
+    },
+
+    "configure": {
+      "description": "Configurar definições do OpenClaw",
+      "auth": "Configurar autenticação",
+      "model": "Configurar modelo padrão",
+      "gateway": "Configurar definições do gateway",
+      "channels": "Configurar canais de mensagem",
+      "skills": "Configurar skills"
+    },
+
+    "gateway": {
+      "description": "Comandos do gateway",
+      "run": "Iniciar o servidor gateway",
+      "status": "Mostrar status do gateway",
+      "stop": "Parar o gateway"
+    },
+
+    "status": {
+      "description": "Mostrar status do OpenClaw",
+      "all": "Mostrar todas as informações de status",
+      "deep": "Sondar serviços para status detalhado"
+    },
+
+    "health": {
+      "description": "Verificação de saúde",
+      "json": "Saída como JSON"
+    },
+
+    "doctor": {
+      "description": "Diagnosticar e corrigir problemas",
+      "fix": "Corrigir problemas automaticamente"
+    },
+
+    "agent": {
+      "description": "Comandos de agente",
+      "run": "Executar um agente",
+      "list": "Listar agentes",
+      "create": "Criar um novo agente"
+    },
+
+    "message": {
+      "description": "Comandos de mensagem",
+      "send": "Enviar uma mensagem",
+      "broadcast": "Transmitir uma mensagem"
+    },
+
+    "memory": {
+      "description": "Comandos de memória",
+      "status": "Mostrar status da memória",
+      "search": "Buscar na memória"
+    }
+  },
+
+  "errors": {
+    "generic": "Ocorreu um erro: {{message}}",
+    "notFound": "Não encontrado: {{item}}",
+    "invalidInput": "Entrada inválida: {{message}}",
+    "networkError": "Erro de rede: {{message}}",
+    "permissionDenied": "Permissão negada: {{message}}",
+    "timeout": "Operação expirou",
+    "cancelled": "Operação cancelada",
+    "configError": "Erro de configuração: {{message}}",
+    "authError": "Erro de autenticação: {{message}}"
+  },
+
+  "messages": {
+    "configUpdated": "Configuração atualizada",
+    "configSaved": "Configuração salva em {{path}}",
+    "gatewayStarted": "Gateway iniciado em {{url}}",
+    "gatewayStopped": "Gateway parado",
+    "channelConnected": "Conectado ao {{channel}}",
+    "channelDisconnected": "Desconectado do {{channel}}"
+  }
+}

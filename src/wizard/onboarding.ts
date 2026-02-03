@@ -38,6 +38,7 @@ import {
   writeConfigFile,
 } from "../config/config.js";
 import { logConfigUpdated } from "../config/logging.js";
+import { t } from "../i18n/index.js";
 import { defaultRuntime } from "../runtime.js";
 import { resolveUserPath } from "../utils.js";
 import { finalizeOnboardingWizard } from "./onboarding.finalize.js";
@@ -52,38 +53,14 @@ async function requireRiskAcknowledgement(params: {
     return;
   }
 
-  await params.prompter.note(
-    [
-      "Security warning — please read.",
-      "",
-      "OpenClaw is a hobby project and still in beta. Expect sharp edges.",
-      "This bot can read files and run actions if tools are enabled.",
-      "A bad prompt can trick it into doing unsafe things.",
-      "",
-      "If you’re not comfortable with basic security and access control, don’t run OpenClaw.",
-      "Ask someone experienced to help before enabling tools or exposing it to the internet.",
-      "",
-      "Recommended baseline:",
-      "- Pairing/allowlists + mention gating.",
-      "- Sandbox + least-privilege tools.",
-      "- Keep secrets out of the agent’s reachable filesystem.",
-      "- Use the strongest available model for any bot with tools or untrusted inboxes.",
-      "",
-      "Run regularly:",
-      "openclaw security audit --deep",
-      "openclaw security audit --fix",
-      "",
-      "Must read: https://docs.openclaw.ai/gateway/security",
-    ].join("\n"),
-    "Security",
-  );
+  await params.prompter.note(t("onboard.security.warning"), t("onboard.security.title"));
 
   const ok = await params.prompter.confirm({
-    message: "I understand this is powerful and inherently risky. Continue?",
+    message: t("onboard.security.confirm"),
     initialValue: false,
   });
   if (!ok) {
-    throw new WizardCancelledError("risk not accepted");
+    throw new WizardCancelledError(t("onboard.security.notAccepted"));
   }
 }
 
@@ -93,33 +70,35 @@ export async function runOnboardingWizard(
   prompter: WizardPrompter,
 ) {
   printWizardHeader(runtime);
-  await prompter.intro("OpenClaw onboarding");
+  await prompter.intro(t("onboard.title"));
   await requireRiskAcknowledgement({ opts, prompter });
 
   const snapshot = await readConfigFileSnapshot();
   let baseConfig: OpenClawConfig = snapshot.valid ? snapshot.config : {};
 
   if (snapshot.exists && !snapshot.valid) {
-    await prompter.note(summarizeExistingConfig(baseConfig), "Invalid config");
+    await prompter.note(summarizeExistingConfig(baseConfig), t("onboard.config.invalidTitle"));
     if (snapshot.issues.length > 0) {
       await prompter.note(
         [
           ...snapshot.issues.map((iss) => `- ${iss.path}: ${iss.message}`),
           "",
-          "Docs: https://docs.openclaw.ai/gateway/configuration",
+          t("onboard.config.docsLink"),
         ].join("\n"),
-        "Config issues",
+        t("onboard.config.issuesTitle"),
       );
     }
     await prompter.outro(
-      `Config invalid. Run \`${formatCliCommand("openclaw doctor")}\` to repair it, then re-run onboarding.`,
+      t("onboard.config.invalidMessage", { command: formatCliCommand("openclaw doctor") }),
     );
     runtime.exit(1);
     return;
   }
 
-  const quickstartHint = `Configure details later via ${formatCliCommand("openclaw configure")}.`;
-  const manualHint = "Configure port, network, Tailscale, and auth options.";
+  const quickstartHint = t("onboard.flow.quickstartHint", {
+    command: formatCliCommand("openclaw configure"),
+  });
+  const manualHint = t("onboard.flow.advancedHint");
   const explicitFlowRaw = opts.flow?.trim();
   const normalizedExplicitFlow = explicitFlowRaw === "manual" ? "advanced" : explicitFlowRaw;
   if (
@@ -127,7 +106,7 @@ export async function runOnboardingWizard(
     normalizedExplicitFlow !== "quickstart" &&
     normalizedExplicitFlow !== "advanced"
   ) {
-    runtime.error("Invalid --flow (use quickstart, manual, or advanced).");
+    runtime.error(t("onboard.flow.invalid"));
     runtime.exit(1);
     return;
   }
@@ -138,47 +117,44 @@ export async function runOnboardingWizard(
   let flow: WizardFlow =
     explicitFlow ??
     (await prompter.select({
-      message: "Onboarding mode",
+      message: t("onboard.flow.title"),
       options: [
-        { value: "quickstart", label: "QuickStart", hint: quickstartHint },
-        { value: "advanced", label: "Manual", hint: manualHint },
+        { value: "quickstart", label: t("onboard.flow.quickstart"), hint: quickstartHint },
+        { value: "advanced", label: t("onboard.flow.advanced"), hint: manualHint },
       ],
       initialValue: "quickstart",
     }));
 
   if (opts.mode === "remote" && flow === "quickstart") {
-    await prompter.note(
-      "QuickStart only supports local gateways. Switching to Manual mode.",
-      "QuickStart",
-    );
+    await prompter.note(t("onboard.flow.quickstartOnlyLocal"), t("onboard.quickstart.title"));
     flow = "advanced";
   }
 
   if (snapshot.exists) {
-    await prompter.note(summarizeExistingConfig(baseConfig), "Existing config detected");
+    await prompter.note(summarizeExistingConfig(baseConfig), t("onboard.config.existingTitle"));
 
     const action = await prompter.select({
-      message: "Config handling",
+      message: t("onboard.config.handling"),
       options: [
-        { value: "keep", label: "Use existing values" },
-        { value: "modify", label: "Update values" },
-        { value: "reset", label: "Reset" },
+        { value: "keep", label: t("onboard.config.keepExisting") },
+        { value: "modify", label: t("onboard.config.updateValues") },
+        { value: "reset", label: t("onboard.config.reset") },
       ],
     });
 
     if (action === "reset") {
       const workspaceDefault = baseConfig.agents?.defaults?.workspace ?? DEFAULT_WORKSPACE;
       const resetScope = (await prompter.select({
-        message: "Reset scope",
+        message: t("onboard.reset.scope"),
         options: [
-          { value: "config", label: "Config only" },
+          { value: "config", label: t("onboard.reset.configOnly") },
           {
             value: "config+creds+sessions",
-            label: "Config + creds + sessions",
+            label: t("onboard.reset.configCredsSeessions"),
           },
           {
             value: "full",
-            label: "Full reset (config + creds + sessions + workspace)",
+            label: t("onboard.reset.full"),
           },
         ],
       })) as ResetScope;
@@ -241,54 +217,56 @@ export async function runOnboardingWizard(
   if (flow === "quickstart") {
     const formatBind = (value: "loopback" | "lan" | "auto" | "custom" | "tailnet") => {
       if (value === "loopback") {
-        return "Loopback (127.0.0.1)";
+        return t("onboard.quickstart.bindLoopback");
       }
       if (value === "lan") {
-        return "LAN";
+        return t("onboard.quickstart.bindLan");
       }
       if (value === "custom") {
-        return "Custom IP";
+        return t("onboard.quickstart.bindCustom");
       }
       if (value === "tailnet") {
-        return "Tailnet (Tailscale IP)";
+        return t("onboard.quickstart.bindTailnet");
       }
-      return "Auto";
+      return t("onboard.quickstart.bindAuto");
     };
     const formatAuth = (value: GatewayAuthChoice) => {
       if (value === "token") {
-        return "Token (default)";
+        return t("onboard.quickstart.authToken");
       }
-      return "Password";
+      return t("onboard.quickstart.authPassword");
     };
     const formatTailscale = (value: "off" | "serve" | "funnel") => {
       if (value === "off") {
-        return "Off";
+        return t("onboard.quickstart.tailscaleOff");
       }
       if (value === "serve") {
-        return "Serve";
+        return t("onboard.quickstart.tailscaleServe");
       }
-      return "Funnel";
+      return t("onboard.quickstart.tailscaleFunnel");
     };
     const quickstartLines = quickstartGateway.hasExisting
       ? [
-          "Keeping your current gateway settings:",
-          `Gateway port: ${quickstartGateway.port}`,
-          `Gateway bind: ${formatBind(quickstartGateway.bind)}`,
+          t("onboard.quickstart.keepingSettings"),
+          t("onboard.quickstart.gatewayPort", { port: String(quickstartGateway.port) }),
+          t("onboard.quickstart.gatewayBind", { bind: formatBind(quickstartGateway.bind) }),
           ...(quickstartGateway.bind === "custom" && quickstartGateway.customBindHost
-            ? [`Gateway custom IP: ${quickstartGateway.customBindHost}`]
+            ? [t("onboard.quickstart.gatewayCustomIp", { ip: quickstartGateway.customBindHost })]
             : []),
-          `Gateway auth: ${formatAuth(quickstartGateway.authMode)}`,
-          `Tailscale exposure: ${formatTailscale(quickstartGateway.tailscaleMode)}`,
-          "Direct to chat channels.",
+          t("onboard.quickstart.gatewayAuth", { auth: formatAuth(quickstartGateway.authMode) }),
+          t("onboard.quickstart.tailscaleExposure", {
+            mode: formatTailscale(quickstartGateway.tailscaleMode),
+          }),
+          t("onboard.quickstart.directToChannels"),
         ]
       : [
-          `Gateway port: ${DEFAULT_GATEWAY_PORT}`,
-          "Gateway bind: Loopback (127.0.0.1)",
-          "Gateway auth: Token (default)",
-          "Tailscale exposure: Off",
-          "Direct to chat channels.",
+          t("onboard.quickstart.gatewayPort", { port: String(DEFAULT_GATEWAY_PORT) }),
+          t("onboard.quickstart.gatewayBind", { bind: t("onboard.quickstart.bindLoopback") }),
+          t("onboard.quickstart.gatewayAuth", { auth: t("onboard.quickstart.authToken") }),
+          t("onboard.quickstart.tailscaleExposure", { mode: t("onboard.quickstart.tailscaleOff") }),
+          t("onboard.quickstart.directToChannels"),
         ];
-    await prompter.note(quickstartLines.join("\n"), "QuickStart");
+    await prompter.note(quickstartLines.join("\n"), t("onboard.quickstart.title"));
   }
 
   const localPort = resolveGatewayPort(baseConfig);
@@ -311,23 +289,23 @@ export async function runOnboardingWizard(
     (flow === "quickstart"
       ? "local"
       : ((await prompter.select({
-          message: "What do you want to set up?",
+          message: t("onboard.mode.title"),
           options: [
             {
               value: "local",
-              label: "Local gateway (this machine)",
+              label: t("onboard.mode.local"),
               hint: localProbe.ok
-                ? `Gateway reachable (${localUrl})`
-                : `No gateway detected (${localUrl})`,
+                ? t("onboard.mode.localHintReachable", { url: localUrl })
+                : t("onboard.mode.localHintUnreachable", { url: localUrl }),
             },
             {
               value: "remote",
-              label: "Remote gateway (info-only)",
+              label: t("onboard.mode.remote"),
               hint: !remoteUrl
-                ? "No remote URL configured yet"
+                ? t("onboard.mode.remoteHintNone")
                 : remoteProbe?.ok
-                  ? `Gateway reachable (${remoteUrl})`
-                  : `Configured but unreachable (${remoteUrl})`,
+                  ? t("onboard.mode.remoteHintReachable", { url: remoteUrl })
+                  : t("onboard.mode.remoteHintUnreachable", { url: remoteUrl }),
             },
           ],
         })) as OnboardMode));
@@ -337,7 +315,7 @@ export async function runOnboardingWizard(
     nextConfig = applyWizardMetadata(nextConfig, { command: "onboard", mode });
     await writeConfigFile(nextConfig);
     logConfigUpdated(runtime);
-    await prompter.outro("Remote gateway configured.");
+    await prompter.outro(t("onboard.mode.remoteConfigured"));
     return;
   }
 
@@ -346,7 +324,7 @@ export async function runOnboardingWizard(
     (flow === "quickstart"
       ? (baseConfig.agents?.defaults?.workspace ?? DEFAULT_WORKSPACE)
       : await prompter.text({
-          message: "Workspace directory",
+          message: t("onboard.workspace.title"),
           initialValue: baseConfig.agents?.defaults?.workspace ?? DEFAULT_WORKSPACE,
         }));
 
@@ -420,7 +398,7 @@ export async function runOnboardingWizard(
   const settings = gateway.settings;
 
   if (opts.skipChannels ?? opts.skipProviders) {
-    await prompter.note("Skipping channel setup.", "Channels");
+    await prompter.note(t("onboard.channels.skipping"), t("onboard.channels.title"));
   } else {
     const quickstartAllowFromChannels =
       flow === "quickstart"
@@ -444,7 +422,7 @@ export async function runOnboardingWizard(
   });
 
   if (opts.skipSkills) {
-    await prompter.note("Skipping skills setup.", "Skills");
+    await prompter.note(t("onboard.skills.skipping"), t("onboard.skills.title"));
   } else {
     nextConfig = await setupSkills(nextConfig, workspaceDir, runtime, prompter);
   }
@@ -467,7 +445,7 @@ export async function runOnboardingWizard(
   });
 
   const installShell = await prompter.confirm({
-    message: "Install shell completion script?",
+    message: t("onboard.completion.installPrompt"),
     initialValue: true,
   });
 
