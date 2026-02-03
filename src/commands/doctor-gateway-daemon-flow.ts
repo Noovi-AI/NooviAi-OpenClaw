@@ -17,6 +17,7 @@ import {
 import { resolveGatewayService } from "../daemon/service.js";
 import { renderSystemdUnavailableHints } from "../daemon/systemd-hints.js";
 import { isSystemdUserServiceAvailable } from "../daemon/systemd.js";
+import { t } from "../i18n/index.js";
 import { formatPortDiagnostics, inspectPortUsage } from "../infra/ports.js";
 import { isWSL } from "../infra/wsl.js";
 import { note } from "../terminal/note.js";
@@ -56,32 +57,41 @@ async function maybeRepairLaunchAgentBootstrap(params: {
     return false;
   }
 
-  note("LaunchAgent is listed but not loaded in launchd.", `${params.title} LaunchAgent`);
+  note(
+    t("doctor.daemon.launchAgentNotLoaded"),
+    t("doctor.daemon.launchAgentLabel", { title: params.title }),
+  );
 
   const shouldFix = await params.prompter.confirmSkipInNonInteractive({
-    message: `Repair ${params.title} LaunchAgent bootstrap now?`,
+    message: t("doctor.daemon.repairLaunchAgent", { title: params.title }),
     initialValue: true,
   });
   if (!shouldFix) {
     return false;
   }
 
-  params.runtime.log(`Bootstrapping ${params.title} LaunchAgent...`);
+  params.runtime.log(t("doctor.daemon.bootstrapping", { title: params.title }));
   const repair = await repairLaunchAgentBootstrap({ env: params.env });
   if (!repair.ok) {
     params.runtime.error(
-      `${params.title} LaunchAgent bootstrap failed: ${repair.detail ?? "unknown error"}`,
+      t("doctor.daemon.bootstrapFailed", {
+        title: params.title,
+        detail: repair.detail ?? "unknown error",
+      }),
     );
     return false;
   }
 
   const verified = await isLaunchAgentLoaded({ env: params.env });
   if (!verified) {
-    params.runtime.error(`${params.title} LaunchAgent still not loaded after repair.`);
+    params.runtime.error(t("doctor.daemon.stillNotLoaded", { title: params.title }));
     return false;
   }
 
-  note(`${params.title} LaunchAgent repaired.`, `${params.title} LaunchAgent`);
+  note(
+    t("doctor.daemon.repaired", { title: params.title }),
+    t("doctor.daemon.launchAgentLabel", { title: params.title }),
+  );
   return true;
 }
 
@@ -138,11 +148,11 @@ export async function maybeRepairGatewayDaemon(params: {
     const port = resolveGatewayPort(params.cfg, process.env);
     const diagnostics = await inspectPortUsage(port);
     if (diagnostics.status === "busy") {
-      note(formatPortDiagnostics(diagnostics).join("\n"), "Gateway port");
+      note(formatPortDiagnostics(diagnostics).join("\n"), t("doctor.daemon.portLabel"));
     } else if (loaded && serviceRuntime?.status === "running") {
       const lastError = await readLastGatewayErrorLine(process.env);
       if (lastError) {
-        note(`Last gateway error: ${lastError}`, "Gateway");
+        note(t("doctor.daemon.lastError", { error: lastError }), t("doctor.daemon.label"));
       }
     }
   }
@@ -152,20 +162,20 @@ export async function maybeRepairGatewayDaemon(params: {
       const systemdAvailable = await isSystemdUserServiceAvailable().catch(() => false);
       if (!systemdAvailable) {
         const wsl = await isWSL();
-        note(renderSystemdUnavailableHints({ wsl }).join("\n"), "Gateway");
+        note(renderSystemdUnavailableHints({ wsl }).join("\n"), t("doctor.daemon.label"));
         return;
       }
     }
-    note("Gateway service not installed.", "Gateway");
+    note(t("doctor.daemon.notInstalled"), t("doctor.daemon.label"));
     if (params.cfg.gateway?.mode !== "remote") {
       const install = await params.prompter.confirmSkipInNonInteractive({
-        message: "Install gateway service now?",
+        message: t("doctor.daemon.installNow"),
         initialValue: true,
       });
       if (install) {
         const daemonRuntime = await params.prompter.select<GatewayDaemonRuntime>(
           {
-            message: "Gateway service runtime",
+            message: t("doctor.daemon.runtimePrompt"),
             options: GATEWAY_DAEMON_RUNTIME_OPTIONS,
             initialValue: DEFAULT_GATEWAY_DAEMON_RUNTIME,
           },
@@ -189,8 +199,8 @@ export async function maybeRepairGatewayDaemon(params: {
             environment,
           });
         } catch (err) {
-          note(`Gateway service install failed: ${String(err)}`, "Gateway");
-          note(gatewayInstallErrorHint(), "Gateway");
+          note(t("doctor.daemon.installFailed", { error: String(err) }), t("doctor.daemon.label"));
+          note(gatewayInstallErrorHint(), t("doctor.daemon.label"));
         }
       }
     }
@@ -205,15 +215,15 @@ export async function maybeRepairGatewayDaemon(params: {
   if (summary || hints.length > 0) {
     const lines: string[] = [];
     if (summary) {
-      lines.push(`Runtime: ${summary}`);
+      lines.push(t("doctor.daemon.runtimeSummary", { summary }));
     }
     lines.push(...hints);
-    note(lines.join("\n"), "Gateway");
+    note(lines.join("\n"), t("doctor.daemon.label"));
   }
 
   if (serviceRuntime?.status !== "running") {
     const start = await params.prompter.confirmSkipInNonInteractive({
-      message: "Start gateway service now?",
+      message: t("doctor.daemon.startNow"),
       initialValue: true,
     });
     if (start) {
@@ -228,14 +238,17 @@ export async function maybeRepairGatewayDaemon(params: {
   if (process.platform === "darwin") {
     const label = resolveGatewayLaunchAgentLabel(process.env.OPENCLAW_PROFILE);
     note(
-      `LaunchAgent loaded; stopping requires "${formatCliCommand("openclaw gateway stop")}" or launchctl bootout gui/$UID/${label}.`,
-      "Gateway",
+      t("doctor.daemon.launchAgentStopNote", {
+        command: formatCliCommand("openclaw gateway stop"),
+        label,
+      }),
+      t("doctor.daemon.label"),
     );
   }
 
   if (serviceRuntime?.status === "running") {
     const restart = await params.prompter.confirmSkipInNonInteractive({
-      message: "Restart gateway service now?",
+      message: t("doctor.daemon.restartNow"),
       initialValue: true,
     });
     if (restart) {
@@ -249,8 +262,8 @@ export async function maybeRepairGatewayDaemon(params: {
       } catch (err) {
         const message = String(err);
         if (message.includes("gateway closed")) {
-          note("Gateway not running.", "Gateway");
-          note(params.gatewayDetailsMessage, "Gateway connection");
+          note(t("doctor.daemon.notRunning"), t("doctor.daemon.label"));
+          note(params.gatewayDetailsMessage, t("doctor.daemon.connectionLabel"));
         } else {
           params.runtime.error(formatHealthCheckFailure(err));
         }

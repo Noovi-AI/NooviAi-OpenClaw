@@ -9,6 +9,7 @@ import {
   DEFAULT_SANDBOX_IMAGE,
   resolveSandboxScope,
 } from "../agents/sandbox.js";
+import { t } from "../i18n/index.js";
 import { runCommandWithTimeout, runExec } from "../process/exec.js";
 import { note } from "../terminal/note.js";
 
@@ -40,25 +41,26 @@ function resolveSandboxScript(scriptRel: string): SandboxScriptInfo | null {
 async function runSandboxScript(scriptRel: string, runtime: RuntimeEnv): Promise<boolean> {
   const script = resolveSandboxScript(scriptRel);
   if (!script) {
-    note(`Unable to locate ${scriptRel}. Run it from the repo root.`, "Sandbox");
+    note(t("doctor.sandbox.unableToLocate", { script: scriptRel }), t("doctor.sandbox.label"));
     return false;
   }
 
-  runtime.log(`Running ${scriptRel}...`);
+  runtime.log(t("doctor.sandbox.running", { script: scriptRel }));
   const result = await runCommandWithTimeout(["bash", script.scriptPath], {
     timeoutMs: 20 * 60 * 1000,
     cwd: script.cwd,
   });
   if (result.code !== 0) {
     runtime.error(
-      `Failed running ${scriptRel}: ${
-        result.stderr.trim() || result.stdout.trim() || "unknown error"
-      }`,
+      t("doctor.sandbox.failedRunning", {
+        script: scriptRel,
+        error: result.stderr.trim() || result.stdout.trim() || "unknown error",
+      }),
     );
     return false;
   }
 
-  runtime.log(`Completed ${scriptRel}.`);
+  runtime.log(t("doctor.sandbox.completed", { script: scriptRel }));
   return true;
 }
 
@@ -155,14 +157,17 @@ async function handleMissingSandboxImage(
   }
 
   const buildHint = params.buildScript
-    ? `Build it with ${params.buildScript}.`
-    : "Build or pull it first.";
-  note(`Sandbox ${params.kind} image missing: ${params.image}. ${buildHint}`, "Sandbox");
+    ? t("doctor.sandbox.buildHintScript", { script: params.buildScript })
+    : t("doctor.sandbox.buildHintGeneric");
+  note(
+    t("doctor.sandbox.imageMissing", { kind: params.kind, image: params.image, buildHint }),
+    t("doctor.sandbox.label"),
+  );
 
   let built = false;
   if (params.buildScript) {
     const build = await prompter.confirmSkipInNonInteractive({
-      message: `Build ${params.kind} sandbox image now?`,
+      message: t("doctor.sandbox.buildImageNow", { kind: params.kind }),
       initialValue: true,
     });
     if (build) {
@@ -188,7 +193,7 @@ export async function maybeRepairSandboxImages(
 
   const dockerAvailable = await isDockerAvailable();
   if (!dockerAvailable) {
-    note("Docker not available; skipping sandbox image checks.", "Sandbox");
+    note(t("doctor.sandbox.dockerNotAvailable"), t("doctor.sandbox.label"));
     return cfg;
   }
 
@@ -208,7 +213,7 @@ export async function maybeRepairSandboxImages(
             : undefined,
       updateConfig: (image) => {
         next = updateSandboxDockerImage(next, image);
-        changes.push(`Updated agents.defaults.sandbox.docker.image → ${image}`);
+        changes.push(t("doctor.sandbox.updatedDockerImage", { image }));
       },
     },
     runtime,
@@ -223,7 +228,7 @@ export async function maybeRepairSandboxImages(
         buildScript: "scripts/sandbox-browser-setup.sh",
         updateConfig: (image) => {
           next = updateSandboxBrowserImage(next, image);
-          changes.push(`Updated agents.defaults.sandbox.browser.image → ${image}`);
+          changes.push(t("doctor.sandbox.updatedBrowserImage", { image }));
         },
       },
       runtime,
@@ -232,7 +237,7 @@ export async function maybeRepairSandboxImages(
   }
 
   if (changes.length > 0) {
-    note(changes.join("\n"), "Doctor changes");
+    note(changes.join("\n"), t("doctor.legacyState.changes"));
   }
 
   return next;
@@ -276,13 +281,13 @@ export function noteSandboxScopeWarnings(cfg: OpenClawConfig) {
 
     warnings.push(
       [
-        `- agents.list (id "${agentId}") sandbox ${overrides.join("/")} overrides ignored.`,
-        `  scope resolves to "shared".`,
+        t("doctor.sandbox.scopeOverridesIgnored", { agentId, overrides: overrides.join("/") }),
+        t("doctor.sandbox.scopeResolvesShared"),
       ].join("\n"),
     );
   }
 
   if (warnings.length > 0) {
-    note(warnings.join("\n"), "Sandbox");
+    note(warnings.join("\n"), t("doctor.sandbox.label"));
   }
 }
