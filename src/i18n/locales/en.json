@@ -206,6 +206,8 @@
     "help": "Show help",
     "language": "Set language (en, pt)",
     "verbose": "Enable verbose output",
+    "json": "Output as JSON",
+    "timeout": "Timeout in milliseconds",
 
     "onboard": {
       "description": "Interactive setup wizard",
@@ -240,38 +242,89 @@
     },
 
     "status": {
-      "description": "Show OpenClaw status",
-      "all": "Show all status information",
-      "deep": "Probe services for detailed status"
+      "description": "Show channel health and recent session recipients",
+      "all": "Full diagnosis (read-only, pasteable)",
+      "deep": "Probe channels (WhatsApp Web + Telegram + Discord + Slack + Signal)",
+      "usage": "Show model provider usage/quota snapshots"
     },
 
     "health": {
-      "description": "Health check",
-      "json": "Output as JSON"
+      "description": "Fetch health from the running gateway",
+      "json": "Output JSON instead of text"
+    },
+
+    "sessions": {
+      "description": "List stored conversation sessions",
+      "store": "Path to session store",
+      "active": "Only show sessions updated within the past N minutes"
     },
 
     "doctor": {
-      "description": "Diagnose and fix issues",
-      "fix": "Automatically fix issues"
+      "description": "Health checks + quick fixes for the gateway and channels",
+      "fix": "Automatically fix issues",
+      "deep": "Run deep security audit"
     },
 
     "agent": {
-      "description": "Agent commands",
+      "description": "Run an agent turn via the Gateway",
       "run": "Run an agent",
       "list": "List agents",
-      "create": "Create a new agent"
+      "create": "Create a new agent",
+      "local": "Use embedded agent (no gateway)"
+    },
+
+    "agents": {
+      "description": "Manage isolated agents (workspaces + auth + routing)",
+      "add": "Add a new agent",
+      "remove": "Remove an agent",
+      "list": "List all agents"
     },
 
     "message": {
-      "description": "Message commands",
+      "description": "Send messages and channel actions",
       "send": "Send a message",
-      "broadcast": "Broadcast a message"
+      "broadcast": "Broadcast a message to multiple recipients"
     },
 
     "memory": {
-      "description": "Memory commands",
+      "description": "Memory search tools",
       "status": "Show memory status",
       "search": "Search memory"
+    },
+
+    "config": {
+      "description": "Config helpers (get/set/unset)",
+      "get": "Get a config value",
+      "set": "Set a config value",
+      "unset": "Remove a config value"
+    },
+
+    "logs": {
+      "description": "Gateway logs",
+      "follow": "Follow logs in real-time",
+      "tail": "Show last N lines"
+    },
+
+    "models": {
+      "description": "Model configuration",
+      "list": "List available models",
+      "set": "Set default model"
+    },
+
+    "dashboard": {
+      "description": "Open the Control UI with your current token"
+    },
+
+    "reset": {
+      "description": "Reset local config/state (keeps the CLI installed)"
+    },
+
+    "uninstall": {
+      "description": "Uninstall the gateway service + local data (CLI remains)"
+    },
+
+    "setup": {
+      "description": "Initialize ~/.openclaw/openclaw.json and the agent workspace"
     }
   },
 

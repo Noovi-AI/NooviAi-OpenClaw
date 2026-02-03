@@ -1,6 +1,7 @@
 import type { Command } from "commander";
 import { onboardCommand } from "../../commands/onboard.js";
 import { setupCommand } from "../../commands/setup.js";
+import { t } from "../../i18n/index.js";
 import { defaultRuntime } from "../../runtime.js";
 import { formatDocsLink } from "../../terminal/links.js";
 import { theme } from "../../terminal/theme.js";
@@ -10,7 +11,7 @@ import { hasExplicitOptions } from "../command-options.js";
 export function registerSetupCommand(program: Command) {
   program
     .command("setup")
-    .description("Initialize ~/.openclaw/openclaw.json and the agent workspace")
+    .description(t("cli.setup.description"))
     .addHelpText(
       "after",
       () =>

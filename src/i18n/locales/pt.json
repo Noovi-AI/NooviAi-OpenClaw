@@ -206,6 +206,8 @@
     "help": "Mostrar ajuda",
     "language": "Definir idioma (en, pt)",
     "verbose": "Habilitar saída detalhada",
+    "json": "Saída como JSON",
+    "timeout": "Timeout em milissegundos",
 
     "onboard": {
       "description": "Assistente de configuração interativo",
@@ -240,38 +242,89 @@
     },
 
     "status": {
-      "description": "Mostrar status do OpenClaw",
-      "all": "Mostrar todas as informações de status",
-      "deep": "Sondar serviços para status detalhado"
+      "description": "Mostrar saúde dos canais e destinatários de sessão recentes",
+      "all": "Diagnóstico completo (somente leitura, colável)",
+      "deep": "Sondar canais (WhatsApp Web + Telegram + Discord + Slack + Signal)",
+      "usage": "Mostrar snapshots de uso/cota de provedores de modelo"
     },
 
     "health": {
-      "description": "Verificação de saúde",
-      "json": "Saída como JSON"
+      "description": "Buscar saúde do gateway em execução",
+      "json": "Saída JSON em vez de texto"
+    },
+
+    "sessions": {
+      "description": "Listar sessões de conversa armazenadas",
+      "store": "Caminho para o armazenamento de sessões",
+      "active": "Mostrar apenas sessões atualizadas nos últimos N minutos"
     },
 
     "doctor": {
-      "description": "Diagnosticar e corrigir problemas",
-      "fix": "Corrigir problemas automaticamente"
+      "description": "Verificações de saúde + correções rápidas para gateway e canais",
+      "fix": "Corrigir problemas automaticamente",
+      "deep": "Executar auditoria de segurança profunda"
     },
 
     "agent": {
-      "description": "Comandos de agente",
+      "description": "Executar turno de agente via Gateway",
       "run": "Executar um agente",
       "list": "Listar agentes",
-      "create": "Criar um novo agente"
+      "create": "Criar um novo agente",
+      "local": "Usar agente embutido (sem gateway)"
+    },
+
+    "agents": {
+      "description": "Gerenciar agentes isolados (workspaces + auth + roteamento)",
+      "add": "Adicionar um novo agente",
+      "remove": "Remover um agente",
+      "list": "Listar todos os agentes"
     },
 
     "message": {
-      "description": "Comandos de mensagem",
+      "description": "Enviar mensagens e ações de canal",
       "send": "Enviar uma mensagem",
-      "broadcast": "Transmitir uma mensagem"
+      "broadcast": "Transmitir uma mensagem para múltiplos destinatários"
     },
 
     "memory": {
-      "description": "Comandos de memória",
+      "description": "Ferramentas de busca de memória",
       "status": "Mostrar status da memória",
       "search": "Buscar na memória"
+    },
+
+    "config": {
+      "description": "Helpers de configuração (get/set/unset)",
+      "get": "Obter um valor de configuração",
+      "set": "Definir um valor de configuração",
+      "unset": "Remover um valor de configuração"
+    },
+
+    "logs": {
+      "description": "Logs do gateway",
+      "follow": "Seguir logs em tempo real",
+      "tail": "Mostrar últimas N linhas"
+    },
+
+    "models": {
+      "description": "Configuração de modelos",
+      "list": "Listar modelos disponíveis",
+      "set": "Definir modelo padrão"
+    },
+
+    "dashboard": {
+      "description": "Abrir a UI de Controle com seu token atual"
+    },
+
+    "reset": {
+      "description": "Redefinir config/estado local (mantém a CLI instalada)"
+    },
+
+    "uninstall": {
+      "description": "Desinstalar o serviço gateway + dados locais (CLI permanece)"
+    },
+
+    "setup": {
+      "description": "Inicializar ~/.openclaw/openclaw.json e o workspace do agente"
     }
   },
 
