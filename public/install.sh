@@ -686,14 +686,28 @@ run_onboarding() {
     return 0
   fi
 
-  if ! is_interactive; then
+  if [[ "$NOOVI_NO_PROMPT" == "1" ]]; then
     log_info "Skipping onboarding (non-interactive mode)"
     return 0
   fi
 
-  if command_exists openclaw; then
+  if ! command_exists openclaw; then
+    log_warn "openclaw command not found, skipping onboarding"
+    return 0
+  fi
+
+  # When running via curl | bash, stdin is the pipe, not the terminal
+  # We need to restore the terminal for interactive onboarding
+  if [[ -t 1 ]] && [[ -e /dev/tty ]]; then
+    log_info "Starting onboarding wizard..."
+    # Restore terminal for interactive input
+    openclaw onboard </dev/tty || true
+  elif [[ -t 0 ]]; then
     log_info "Starting onboarding wizard..."
     openclaw onboard || true
+  else
+    log_info "No terminal available for onboarding."
+    log_info "Run manually: openclaw onboard"
   fi
 }
 
