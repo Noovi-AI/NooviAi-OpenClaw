@@ -16,8 +16,11 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."
 
 export function getI18nPaths(env = process.env) {
   const srcDir = env.OPENCLAW_I18N_SRC_DIR ?? path.join(repoRoot, "src", "i18n", "locales");
-  const outDir = env.OPENCLAW_I18N_OUT_DIR ?? path.join(repoRoot, "dist", "locales");
-  return { srcDir, outDir };
+  const outDirs = [
+    env.OPENCLAW_I18N_OUT_DIR ?? path.join(repoRoot, "dist", "locales"),
+    path.join(repoRoot, "dist", "plugin-sdk", "locales"),
+  ];
+  return { srcDir, outDirs };
 }
 
 export async function copyI18nLocales({ srcDir, outDir }: { srcDir: string; outDir: string }) {
@@ -42,9 +45,11 @@ export async function copyI18nLocales({ srcDir, outDir }: { srcDir: string; outD
 }
 
 async function main() {
-  const { srcDir, outDir } = getI18nPaths();
-  console.log(`Copying i18n locales from ${srcDir} to ${outDir}`);
-  await copyI18nLocales({ srcDir, outDir });
+  const { srcDir, outDirs } = getI18nPaths();
+  for (const outDir of outDirs) {
+    console.log(`Copying i18n locales from ${srcDir} to ${outDir}`);
+    await copyI18nLocales({ srcDir, outDir });
+  }
   console.log("Done copying i18n locales.");
 }
 
