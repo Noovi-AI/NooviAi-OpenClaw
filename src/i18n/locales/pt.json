@@ -500,6 +500,17 @@
       "restartNow": "Reiniciar serviço gateway agora?",
       "notRunning": "Gateway não está rodando.",
       "launchAgentStopNote": "LaunchAgent carregado; parar requer \"{{command}}\" ou launchctl bootout gui/$UID/{{label}}."
+    },
+
+    "completion": {
+      "title": "Completar shell",
+      "slowPatternUpgrade": "Seu perfil {{shell}} usa completar dinâmico lento (source <(...)).\nAtualizando para versão em cache para inicialização mais rápida...",
+      "generateFailed": "Falha ao gerar cache de completar. Execute `{{cliName}} completion --write-state` manualmente.",
+      "upgraded": "Completar shell atualizado. Reinicie seu shell ou execute: source ~/.{{profileFile}}",
+      "cacheMissing": "Completar shell está configurado no seu perfil {{shell}} mas o cache está faltando.\nRegenerando cache...",
+      "cacheRegenerated": "Cache de completar regenerado em {{cachePath}}",
+      "enablePrompt": "Habilitar completar shell {{shell}} para {{cliName}}?",
+      "installed": "Completar shell instalado. Reinicie seu shell ou execute: source ~/.{{profileFile}}"
     }
   },
 

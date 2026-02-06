@@ -500,6 +500,17 @@
       "restartNow": "Restart gateway service now?",
       "notRunning": "Gateway not running.",
       "launchAgentStopNote": "LaunchAgent loaded; stopping requires \"{{command}}\" or launchctl bootout gui/$UID/{{label}}."
+    },
+
+    "completion": {
+      "title": "Shell completion",
+      "slowPatternUpgrade": "Your {{shell}} profile uses slow dynamic completion (source <(...)).\nUpgrading to cached completion for faster shell startup...",
+      "generateFailed": "Failed to generate completion cache. Run `{{cliName}} completion --write-state` manually.",
+      "upgraded": "Shell completion upgraded. Restart your shell or run: source ~/.{{profileFile}}",
+      "cacheMissing": "Shell completion is configured in your {{shell}} profile but the cache is missing.\nRegenerating cache...",
+      "cacheRegenerated": "Completion cache regenerated at {{cachePath}}",
+      "enablePrompt": "Enable {{shell}} shell completion for {{cliName}}?",
+      "installed": "Shell completion installed. Restart your shell or run: source ~/.{{profileFile}}"
     }
   },
 
