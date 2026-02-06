@@ -1,5 +1,6 @@
 import type { Component, SelectItem } from "@mariozechner/pi-tui";
 import { spawn } from "node:child_process";
+import { t } from "../i18n/index.js";
 import { createSearchableSelectList } from "./components/selectors.js";
 
 type LocalShellDeps = {
@@ -43,15 +44,23 @@ export function createLocalShellRunner(deps: LocalShellDeps) {
     localExecAsked = true;
 
     return await new Promise<boolean>((resolve) => {
-      deps.chatLog.addSystem("Allow local shell commands for this session?");
       deps.chatLog.addSystem(
-        "This runs commands on YOUR machine (not the gateway) and may delete files or reveal secrets.",
+        t("tui.localShellAllow", {}, "Allow local shell commands for this session?"),
       );
-      deps.chatLog.addSystem("Select Yes/No (arrows + Enter), Esc to cancel.");
+      deps.chatLog.addSystem(
+        t(
+          "tui.localShellWarning",
+          {},
+          "This runs commands on YOUR machine (not the gateway) and may delete files or reveal secrets.",
+        ),
+      );
+      deps.chatLog.addSystem(
+        t("tui.localShellSelectPrompt", {}, "Select Yes/No (arrows + Enter), Esc to cancel."),
+      );
       const selector = createSelector(
         [
-          { value: "no", label: "No" },
-          { value: "yes", label: "Yes" },
+          { value: "no", label: t("common.no", {}, "No") },
+          { value: "yes", label: t("common.yes", {}, "Yes") },
         ],
         2,
       );
@@ -59,17 +68,19 @@ export function createLocalShellRunner(deps: LocalShellDeps) {
         deps.closeOverlay();
         if (item.value === "yes") {
           localExecAllowed = true;
-          deps.chatLog.addSystem("local shell: enabled for this session");
+          deps.chatLog.addSystem(
+            t("tui.localShellEnabled", {}, "local shell: enabled for this session"),
+          );
           resolve(true);
         } else {
-          deps.chatLog.addSystem("local shell: not enabled");
+          deps.chatLog.addSystem(t("tui.localShellNotEnabled", {}, "local shell: not enabled"));
           resolve(false);
         }
         deps.tui.requestRender();
       };
       selector.onCancel = () => {
         deps.closeOverlay();
-        deps.chatLog.addSystem("local shell: cancelled");
+        deps.chatLog.addSystem(t("tui.localShellCancelled", {}, "local shell: cancelled"));
         deps.tui.requestRender();
         resolve(false);
       };
@@ -87,7 +98,9 @@ export function createLocalShellRunner(deps: LocalShellDeps) {
     }
 
     if (localExecAsked && !localExecAllowed) {
-      deps.chatLog.addSystem("local shell: not enabled for this session");
+      deps.chatLog.addSystem(
+        t("tui.localShellNotEnabledSession", {}, "local shell: not enabled for this session"),
+      );
       deps.tui.requestRender();
       return;
     }
@@ -127,14 +140,20 @@ export function createLocalShellRunner(deps: LocalShellDeps) {
           }
         }
         deps.chatLog.addSystem(
-          `[local] exit ${code ?? "?"}${signal ? ` (signal ${String(signal)})` : ""}`,
+          t(
+            "tui.localShellExit",
+            { code: code ?? "?", signal: signal ? ` (signal ${String(signal)})` : "" },
+            `[local] exit ${code ?? "?"}${signal ? ` (signal ${String(signal)})` : ""}`,
+          ),
         );
         deps.tui.requestRender();
         resolve();
       });
 
       child.on("error", (err) => {
-        deps.chatLog.addSystem(`[local] error: ${String(err)}`);
+        deps.chatLog.addSystem(
+          t("tui.localShellError", { error: String(err) }, `[local] error: ${String(err)}`),
+        );
         deps.tui.requestRender();
         resolve();
       });

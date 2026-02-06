@@ -30,18 +30,52 @@ Estas customizacoes vivem em diretorios/arquivos novos que nao existem no upstre
 
 ## Arquivos Upstream Modificados
 
-Estas modificacoes alteram arquivos que existem no upstream e podem gerar conflitos durante merge:
+Estas modificacoes alteram arquivos que existem no upstream e podem gerar conflitos durante merge.
+
+### Infraestrutura i18n (import + inicializacao)
 
 | Arquivo                        | Tipo  | Descricao                                                |
 | ------------------------------ | ----- | -------------------------------------------------------- |
 | `package.json`                 | build | Adicionado `dist/i18n/**` aos files, script de copy i18n |
-| `src/wizard/onboarding.ts`     | i18n  | Strings extraidas para t()                               |
 | `src/cli/program/help.ts`      | i18n  | Flag --language adicionada                               |
 | `src/cli/program/preaction.ts` | i18n  | Inicializacao do i18n                                    |
 | `src/cli/argv.ts`              | i18n  | Helper getLanguageFlag()                                 |
 | `src/config/types.openclaw.ts` | i18n  | Tipo CliLanguage e campo language                        |
 | `ui/src/main.ts`               | i18n  | Inicializacao do i18n                                    |
-| `ui/src/ui/navigation.ts`      | i18n  | Titulos traduzidos                                       |
+| `ui/src/ui/navigation.ts`      | i18n  | Titulos traduzidos com t()                               |
+
+### Onboarding e Wizard (strings extraidas para t())
+
+| Arquivo                               | Tipo | Descricao                                             |
+| ------------------------------------- | ---- | ----------------------------------------------------- |
+| `src/wizard/onboarding.ts`            | i18n | ~40 strings: config errors, prompts, summary labels   |
+| `src/wizard/onboarding.finalize.ts`   | i18n | ~50 strings: systemd, hatch, completion, what-now     |
+| `src/commands/onboard-skills.ts`      | i18n | ~21 strings: skills status, install, brew, env config |
+| `src/commands/auth-choice-options.ts` | i18n | 2 strings: "Skip for now"                             |
+
+### CLI Commands (strings extraidas para t())
+
+| Arquivo                                  | Tipo | Descricao                                            |
+| ---------------------------------------- | ---- | ---------------------------------------------------- |
+| `src/commands/status.command.ts`         | i18n | ~60 strings: table labels, sections, status messages |
+| `src/commands/dashboard.ts`              | i18n | 5 strings: URL, clipboard, browser launch            |
+| `src/cli/update-cli.ts`                  | i18n | ~148 strings: steps, quips, wizard, help, status     |
+| `src/cli/completion-cli.ts`              | i18n | 9 strings: install/update shell completion messages  |
+| `src/cli/cron-cli/register.cron-add.ts`  | i18n | 10 strings: validation error messages                |
+| `src/cli/cron-cli/register.cron-edit.ts` | i18n | 9 strings: validation error messages                 |
+| `src/cli/cron-cli/shared.ts`             | i18n | 11 strings: warnings, table headers, "no jobs"       |
+
+### TUI - Terminal User Interface (strings extraidas para t())
+
+| Arquivo                           | Tipo | Descricao                                              |
+| --------------------------------- | ---- | ------------------------------------------------------ |
+| `src/tui/tui.ts`                  | i18n | ~15 strings: connection/activity status, footer        |
+| `src/tui/tui-command-handlers.ts` | i18n | ~30 strings: model/agent selectors, settings, commands |
+| `src/tui/tui-event-handlers.ts`   | i18n | 2 strings: run aborted/error messages                  |
+| `src/tui/tui-local-shell.ts`      | i18n | ~12 strings: local shell permission/status messages    |
+| `src/tui/tui-session-actions.ts`  | i18n | ~8 strings: agent/session list, history, abort         |
+| `src/tui/tui-status-summary.ts`   | i18n | ~20 strings: gateway status labels, session info       |
+| `src/tui/gateway-chat.ts`         | i18n | 1 string: auth error hint                              |
 
 ## Estrutura de Branches
 
@@ -128,10 +162,10 @@ Exemplos:
 
 ## Idiomas Suportados
 
-| Codigo | Nome               | Status              |
-| ------ | ------------------ | ------------------- |
-| `en`   | English            | Completo (baseline) |
-| `pt`   | Portugues (Brasil) | Em progresso        |
+| Codigo | Nome               | Status                  |
+| ------ | ------------------ | ----------------------- |
+| `en`   | English            | Completo (baseline)     |
+| `pt`   | Portugues (Brasil) | Completo (CLI + Web UI) |
 
 ## Configuracao de Idioma
 

@@ -14,6 +14,7 @@ import {
   normalizeUsageDisplay,
   resolveResponseUsageMode,
 } from "../auto-reply/thinking.js";
+import { t } from "../i18n/index.js";
 import { normalizeAgentId } from "../routing/session-key.js";
 import { formatRelativeTime } from "../utils/time-format.js";
 import { helpText, parseCommand } from "./commands.js";
@@ -76,7 +77,7 @@ export function createCommandHandlers(context: CommandHandlerContext) {
     try {
       const models = await client.listModels();
       if (models.length === 0) {
-        chatLog.addSystem("no models available");
+        chatLog.addSystem(t("tui.noModelsAvailable", {}, "no models available"));
         tui.requestRender();
         return;
       }
@@ -93,11 +94,15 @@ export function createCommandHandlers(context: CommandHandlerContext) {
               key: state.currentSessionKey,
               model: item.value,
             });
-            chatLog.addSystem(`model set to ${item.value}`);
+            chatLog.addSystem(
+              t("tui.modelSetTo", { model: item.value }, `model set to ${item.value}`),
+            );
             applySessionInfoFromPatch(result);
             await refreshSessionInfo();
           } catch (err) {
-            chatLog.addSystem(`model set failed: ${String(err)}`);
+            chatLog.addSystem(
+              t("tui.modelSetFailed", { error: String(err) }, `model set failed: ${String(err)}`),
+            );
           }
           closeOverlay();
           tui.requestRender();
@@ -110,7 +115,9 @@ export function createCommandHandlers(context: CommandHandlerContext) {
       openOverlay(selector);
       tui.requestRender();
     } catch (err) {
-      chatLog.addSystem(`model list failed: ${String(err)}`);
+      chatLog.addSystem(
+        t("tui.modelListFailed", { error: String(err) }, `model list failed: ${String(err)}`),
+      );
       tui.requestRender();
     }
   };
@@ -118,14 +125,14 @@ export function createCommandHandlers(context: CommandHandlerContext) {
   const openAgentSelector = async () => {
     await refreshAgents();
     if (state.agents.length === 0) {
-      chatLog.addSystem("no agents found");
+      chatLog.addSystem(t("tui.noAgentsFound", {}, "no agents found"));
       tui.requestRender();
       return;
     }
     const items = state.agents.map((agent: AgentSummary) => ({
       value: agent.id,
       label: agent.name ? `${agent.id} (${agent.name})` : agent.id,
-      description: agent.id === state.agentDefaultId ? "default" : "",
+      description: agent.id === state.agentDefaultId ? t("common.default", {}, "default") : "",
     }));
     const selector = createSearchableSelectList(items, 9);
     selector.onSelect = (item) => {
@@ -193,7 +200,9 @@ export function createCommandHandlers(context: CommandHandlerContext) {
       openOverlay(selector);
       tui.requestRender();
     } catch (err) {
-      chatLog.addSystem(`sessions list failed: ${String(err)}`);
+      chatLog.addSystem(
+        t("tui.sessionsListFailed", { error: String(err) }, `sessions list failed: ${String(err)}`),
+      );
       tui.requestRender();
     }
   };
@@ -202,13 +211,13 @@ export function createCommandHandlers(context: CommandHandlerContext) {
     const items = [
       {
         id: "tools",
-        label: "Tool output",
+        label: t("tui.settingsToolOutput", {}, "Tool output"),
         currentValue: state.toolsExpanded ? "expanded" : "collapsed",
         values: ["collapsed", "expanded"],
       },
       {
         id: "thinking",
-        label: "Show thinking",
+        label: t("tui.settingsShowThinking", {}, "Show thinking"),
         currentValue: state.showThinking ? "on" : "off",
         values: ["off", "on"],
       },
@@ -263,9 +272,11 @@ export function createCommandHandlers(context: CommandHandlerContext) {
             }
             break;
           }
-          chatLog.addSystem("status: unknown response");
+          chatLog.addSystem(t("tui.statusUnknownResponse", {}, "status: unknown response"));
         } catch (err) {
-          chatLog.addSystem(`status failed: ${String(err)}`);
+          chatLog.addSystem(
+            t("tui.statusFailed", { error: String(err) }, `status failed: ${String(err)}`),
+          );
         }
         break;
       case "agent":
@@ -297,11 +308,13 @@ export function createCommandHandlers(context: CommandHandlerContext) {
               key: state.currentSessionKey,
               model: args,
             });
-            chatLog.addSystem(`model set to ${args}`);
+            chatLog.addSystem(t("tui.modelSetTo", { model: args }, `model set to ${args}`));
             applySessionInfoFromPatch(result);
             await refreshSessionInfo();
           } catch (err) {
-            chatLog.addSystem(`model set failed: ${String(err)}`);
+            chatLog.addSystem(
+              t("tui.modelSetFailed", { error: String(err) }, `model set failed: ${String(err)}`),
+            );
           }
         }
         break;
@@ -315,7 +328,7 @@ export function createCommandHandlers(context: CommandHandlerContext) {
             state.sessionInfo.model,
             "|",
           );
-          chatLog.addSystem(`usage: /think <${levels}>`);
+          chatLog.addSystem(t("tui.thinkUsage", { levels }, `usage: /think <${levels}>`));
           break;
         }
         try {
@@ -323,16 +336,18 @@ export function createCommandHandlers(context: CommandHandlerContext) {
             key: state.currentSessionKey,
             thinkingLevel: args,
           });
-          chatLog.addSystem(`thinking set to ${args}`);
+          chatLog.addSystem(t("tui.thinkingSetTo", { level: args }, `thinking set to ${args}`));
           applySessionInfoFromPatch(result);
           await refreshSessionInfo();
         } catch (err) {
-          chatLog.addSystem(`think failed: ${String(err)}`);
+          chatLog.addSystem(
+            t("tui.thinkFailed", { error: String(err) }, `think failed: ${String(err)}`),
+          );
         }
         break;
       case "verbose":
         if (!args) {
-          chatLog.addSystem("usage: /verbose <on|off>");
+          chatLog.addSystem(t("tui.verboseUsage", {}, "usage: /verbose <on|off>"));
           break;
         }
         try {
@@ -340,16 +355,18 @@ export function createCommandHandlers(context: CommandHandlerContext) {
             key: state.currentSessionKey,
             verboseLevel: args,
           });
-          chatLog.addSystem(`verbose set to ${args}`);
+          chatLog.addSystem(t("tui.verboseSetTo", { level: args }, `verbose set to ${args}`));
           applySessionInfoFromPatch(result);
           await loadHistory();
         } catch (err) {
-          chatLog.addSystem(`verbose failed: ${String(err)}`);
+          chatLog.addSystem(
+            t("tui.verboseFailed", { error: String(err) }, `verbose failed: ${String(err)}`),
+          );
         }
         break;
       case "reasoning":
         if (!args) {
-          chatLog.addSystem("usage: /reasoning <on|off>");
+          chatLog.addSystem(t("tui.reasoningUsage", {}, "usage: /reasoning <on|off>"));
           break;
         }
         try {
@@ -357,17 +374,19 @@ export function createCommandHandlers(context: CommandHandlerContext) {
             key: state.currentSessionKey,
             reasoningLevel: args,
           });
-          chatLog.addSystem(`reasoning set to ${args}`);
+          chatLog.addSystem(t("tui.reasoningSetTo", { level: args }, `reasoning set to ${args}`));
           applySessionInfoFromPatch(result);
           await refreshSessionInfo();
         } catch (err) {
-          chatLog.addSystem(`reasoning failed: ${String(err)}`);
+          chatLog.addSystem(
+            t("tui.reasoningFailed", { error: String(err) }, `reasoning failed: ${String(err)}`),
+          );
         }
         break;
       case "usage": {
         const normalized = args ? normalizeUsageDisplay(args) : undefined;
         if (args && !normalized) {
-          chatLog.addSystem("usage: /usage <off|tokens|full>");
+          chatLog.addSystem(t("tui.usageUsage", {}, "usage: /usage <off|tokens|full>"));
           break;
         }
         const currentRaw = state.sessionInfo.responseUsage;
@@ -379,21 +398,23 @@ export function createCommandHandlers(context: CommandHandlerContext) {
             key: state.currentSessionKey,
             responseUsage: next === "off" ? null : next,
           });
-          chatLog.addSystem(`usage footer: ${next}`);
+          chatLog.addSystem(t("tui.usageFooter", { mode: next }, `usage footer: ${next}`));
           applySessionInfoFromPatch(result);
           await refreshSessionInfo();
         } catch (err) {
-          chatLog.addSystem(`usage failed: ${String(err)}`);
+          chatLog.addSystem(
+            t("tui.usageFailed", { error: String(err) }, `usage failed: ${String(err)}`),
+          );
         }
         break;
       }
       case "elevated":
         if (!args) {
-          chatLog.addSystem("usage: /elevated <on|off|ask|full>");
+          chatLog.addSystem(t("tui.elevatedUsage", {}, "usage: /elevated <on|off|ask|full>"));
           break;
         }
         if (!["on", "off", "ask", "full"].includes(args)) {
-          chatLog.addSystem("usage: /elevated <on|off|ask|full>");
+          chatLog.addSystem(t("tui.elevatedUsage", {}, "usage: /elevated <on|off|ask|full>"));
           break;
         }
         try {
@@ -401,16 +422,18 @@ export function createCommandHandlers(context: CommandHandlerContext) {
             key: state.currentSessionKey,
             elevatedLevel: args,
           });
-          chatLog.addSystem(`elevated set to ${args}`);
+          chatLog.addSystem(t("tui.elevatedSetTo", { level: args }, `elevated set to ${args}`));
           applySessionInfoFromPatch(result);
           await refreshSessionInfo();
         } catch (err) {
-          chatLog.addSystem(`elevated failed: ${String(err)}`);
+          chatLog.addSystem(
+            t("tui.elevatedFailed", { error: String(err) }, `elevated failed: ${String(err)}`),
+          );
         }
         break;
       case "activation":
         if (!args) {
-          chatLog.addSystem("usage: /activation <mention|always>");
+          chatLog.addSystem(t("tui.activationUsage", {}, "usage: /activation <mention|always>"));
           break;
         }
         try {
@@ -418,11 +441,13 @@ export function createCommandHandlers(context: CommandHandlerContext) {
             key: state.currentSessionKey,
             groupActivation: args === "always" ? "always" : "mention",
           });
-          chatLog.addSystem(`activation set to ${args}`);
+          chatLog.addSystem(t("tui.activationSetTo", { mode: args }, `activation set to ${args}`));
           applySessionInfoFromPatch(result);
           await refreshSessionInfo();
         } catch (err) {
-          chatLog.addSystem(`activation failed: ${String(err)}`);
+          chatLog.addSystem(
+            t("tui.activationFailed", { error: String(err) }, `activation failed: ${String(err)}`),
+          );
         }
         break;
       case "new":
@@ -435,10 +460,18 @@ export function createCommandHandlers(context: CommandHandlerContext) {
           tui.requestRender();
 
           await client.resetSession(state.currentSessionKey);
-          chatLog.addSystem(`session ${state.currentSessionKey} reset`);
+          chatLog.addSystem(
+            t(
+              "tui.sessionReset",
+              { key: state.currentSessionKey },
+              `session ${state.currentSessionKey} reset`,
+            ),
+          );
           await loadHistory();
         } catch (err) {
-          chatLog.addSystem(`reset failed: ${String(err)}`);
+          chatLog.addSystem(
+            t("tui.resetFailed", { error: String(err) }, `reset failed: ${String(err)}`),
+          );
         }
         break;
       case "abort":
@@ -482,7 +515,7 @@ export function createCommandHandlers(context: CommandHandlerContext) {
         forgetLocalRunId?.(state.activeChatRunId);
       }
       state.activeChatRunId = null;
-      chatLog.addSystem(`send failed: ${String(err)}`);
+      chatLog.addSystem(t("tui.sendFailed", { error: String(err) }, `send failed: ${String(err)}`));
       setActivityStatus("error");
     }
     tui.requestRender();

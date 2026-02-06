@@ -1,5 +1,6 @@
 import type { AuthProfileStore } from "../agents/auth-profiles.js";
 import type { AuthChoice } from "./onboard-types.js";
+import { t } from "../i18n/index.js";
 
 export type AuthChoiceOption = {
   value: AuthChoice;
@@ -227,7 +228,7 @@ export function buildAuthChoiceOptions(params: {
     hint: "Faster, higher output cost",
   });
   if (params.includeSkip) {
-    options.push({ value: "skip", label: "Skip for now" });
+    options.push({ value: "skip", label: t("onboard.skills.skipForNow", {}, "Skip for now") });
   }
 
   return options;
@@ -253,7 +254,10 @@ export function buildAuthChoiceGroups(params: { store: AuthProfileStore; include
   }));
 
   const skipOption = params.includeSkip
-    ? ({ value: "skip", label: "Skip for now" } satisfies AuthChoiceOption)
+    ? ({
+        value: "skip",
+        label: t("onboard.skills.skipForNow", {}, "Skip for now"),
+      } satisfies AuthChoiceOption)
     : undefined;
 
   return { groups, skipOption };

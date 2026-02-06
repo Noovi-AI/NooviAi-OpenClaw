@@ -5,6 +5,7 @@ import { withProgress } from "../cli/progress.js";
 import { resolveGatewayPort } from "../config/config.js";
 import { buildGatewayConnectionDetails, callGateway } from "../gateway/call.js";
 import { info } from "../globals.js";
+import { t } from "../i18n/index.js";
 import { formatUsageReportLines, loadProviderUsageSummary } from "../infra/provider-usage.js";
 import {
   formatUpdateChannelLabel,
@@ -83,7 +84,7 @@ export async function statusCommand(
 
   const securityAudit = await withProgress(
     {
-      label: "Running security audit…",
+      label: t("statusCmd.runningAudit", {}, "Running security audit…"),
       indeterminate: true,
       enabled: opts.json !== true,
     },
@@ -99,7 +100,7 @@ export async function statusCommand(
   const usage = opts.usage
     ? await withProgress(
         {
-          label: "Fetching usage snapshot…",
+          label: t("statusCmd.fetchingUsage", {}, "Fetching usage snapshot…"),
           indeterminate: true,
           enabled: opts.json !== true,
         },
@@ -109,7 +110,7 @@ export async function statusCommand(
   const health: HealthSummary | undefined = opts.deep
     ? await withProgress(
         {
-          label: "Checking gateway health…",
+          label: t("statusCmd.checkingHealth", {}, "Checking gateway health…"),
           indeterminate: true,
           enabled: opts.json !== true,
         },
@@ -182,7 +183,7 @@ export async function statusCommand(
 
   if (opts.verbose) {
     const details = buildGatewayConnectionDetails();
-    runtime.log(info("Gateway connection:"));
+    runtime.log(info(t("statusCmd.gatewayConnection", {}, "Gateway connection:")));
     for (const line of details.message.split("\n")) {
       runtime.log(`  ${line}`);
     }
@@ -194,7 +195,7 @@ export async function statusCommand(
   const dashboard = (() => {
     const controlUiEnabled = cfg.gateway?.controlUi?.enabled ?? true;
     if (!controlUiEnabled) {
-      return "disabled";
+      return t("statusCmd.disabled", {}, "disabled");
     }
     const links = resolveControlUiLinks({
       port: resolveGatewayPort(cfg),
@@ -210,7 +211,7 @@ export async function statusCommand(
       ? `fallback ${gatewayConnection.url}`
       : `${gatewayConnection.url}${gatewayConnection.urlSource ? ` (${gatewayConnection.urlSource})` : ""}`;
     const reach = remoteUrlMissing
-      ? warn("misconfigured (remote.url missing)")
+      ? warn(t("statusCmd.misconfigured", {}, "misconfigured (remote.url missing)"))
       : gatewayReachable
         ? ok(`reachable ${formatDuration(gatewayProbe?.connectLatencyMs)}`)
         : warn(gatewayProbe?.error ? `unreachable (${gatewayProbe.error})` : "unreachable");
@@ -236,10 +237,17 @@ export async function statusCommand(
   const agentsValue = (() => {
     const pending =
       agentStatus.bootstrapPendingCount > 0
-        ? `${agentStatus.bootstrapPendingCount} bootstrapping`
-        : "no bootstraps";
+        ? t(
+            "statusCmd.bootstrapping",
+            { count: agentStatus.bootstrapPendingCount },
+            `${agentStatus.bootstrapPendingCount} bootstrapping`,
+          )
+        : t("statusCmd.noBootstraps", {}, "no bootstraps");
     const def = agentStatus.agents.find((a) => a.id === agentStatus.defaultId);
-    const defActive = def?.lastActiveAgeMs != null ? formatAge(def.lastActiveAgeMs) : "unknown";
+    const defActive =
+      def?.lastActiveAgeMs != null
+        ? formatAge(def.lastActiveAgeMs)
+        : t("statusCmd.unknown", {}, "unknown");
     const defSuffix = def ? ` · default ${def.id} active ${defActive}` : "";
     return `${agentStatus.agents.length} · ${pending} · sessions ${agentStatus.totalSessions}${defSuffix}`;
   })();
@@ -250,14 +258,14 @@ export async function statusCommand(
   ]);
   const daemonValue = (() => {
     if (daemon.installed === false) {
-      return `${daemon.label} not installed`;
+      return `${daemon.label} ${t("statusCmd.notInstalled", {}, "not installed")}`;
     }
     const installedPrefix = daemon.installed === true ? "installed · " : "";
     return `${daemon.label} ${installedPrefix}${daemon.loadedText}${daemon.runtimeShort ? ` · ${daemon.runtimeShort}` : ""}`;
   })();
   const nodeDaemonValue = (() => {
     if (nodeDaemon.installed === false) {
-      return `${nodeDaemon.label} not installed`;
+      return `${nodeDaemon.label} ${t("statusCmd.notInstalled", {}, "not installed")}`;
     }
     const installedPrefix = nodeDaemon.installed === true ? "installed · " : "";
     return `${nodeDaemon.label} ${installedPrefix}${nodeDaemon.loadedText}${nodeDaemon.runtimeShort ? ` · ${nodeDaemon.runtimeShort}` : ""}`;
@@ -268,9 +276,13 @@ export async function statusCommand(
     ? ` (${formatKTokens(defaults.contextTokens)} ctx)`
     : "";
   const eventsValue =
-    summary.queuedSystemEvents.length > 0 ? `${summary.queuedSystemEvents.length} queued` : "none";
+    summary.queuedSystemEvents.length > 0
+      ? `${summary.queuedSystemEvents.length} queued`
+      : t("statusCmd.none", {}, "none");
 
-  const probesValue = health ? ok("enabled") : muted("skipped (use --deep)");
+  const probesValue = health
+    ? ok(t("statusCmd.probesEnabled", {}, "enabled"))
+    : muted(t("statusCmd.probesSkipped", {}, "skipped (use --deep)"));
 
   const heartbeatValue = (() => {
     const parts = summary.heartbeat.agents
@@ -289,10 +301,10 @@ export async function statusCommand(
       return null;
     }
     if (!gatewayReachable) {
-      return warn("unavailable");
+      return warn(t("statusCmd.unavailable", {}, "unavailable"));
     }
     if (!lastHeartbeat) {
-      return muted("none");
+      return muted(t("statusCmd.none", {}, "none"));
     }
     const age = formatAge(Date.now() - lastHeartbeat.ts);
     const channel = lastHeartbeat.channel ?? "unknown";
@@ -370,10 +382,13 @@ export async function statusCommand(
       : null;
 
   const overviewRows = [
-    { Item: "Dashboard", Value: dashboard },
-    { Item: "OS", Value: `${osSummary.label} · node ${process.versions.node}` },
+    { Item: t("statusCmd.dashboard", {}, "Dashboard"), Value: dashboard },
     {
-      Item: "Tailscale",
+      Item: t("statusCmd.os", {}, "OS"),
+      Value: `${osSummary.label} · node ${process.versions.node}`,
+    },
+    {
+      Item: t("statusCmd.tailscale", {}, "Tailscale"),
       Value:
         tailscaleMode === "off"
           ? muted("off")
@@ -381,43 +396,45 @@ export async function statusCommand(
             ? `${tailscaleMode} · ${tailscaleDns} · ${tailscaleHttpsUrl}`
             : warn(`${tailscaleMode} · magicdns unknown`),
     },
-    { Item: "Channel", Value: channelLabel },
-    ...(gitLabel ? [{ Item: "Git", Value: gitLabel }] : []),
+    { Item: t("statusCmd.channelRow", {}, "Channel"), Value: channelLabel },
+    ...(gitLabel ? [{ Item: t("statusCmd.git", {}, "Git"), Value: gitLabel }] : []),
     {
-      Item: "Update",
+      Item: t("statusCmd.update", {}, "Update"),
       Value: updateAvailability.available ? warn(`available · ${updateLine}`) : updateLine,
     },
-    { Item: "Gateway", Value: gatewayValue },
-    { Item: "Gateway service", Value: daemonValue },
-    { Item: "Node service", Value: nodeDaemonValue },
-    { Item: "Agents", Value: agentsValue },
-    { Item: "Memory", Value: memoryValue },
-    { Item: "Probes", Value: probesValue },
-    { Item: "Events", Value: eventsValue },
-    { Item: "Heartbeat", Value: heartbeatValue },
-    ...(lastHeartbeatValue ? [{ Item: "Last heartbeat", Value: lastHeartbeatValue }] : []),
+    { Item: t("statusCmd.gatewayRow", {}, "Gateway"), Value: gatewayValue },
+    { Item: t("statusCmd.gatewayService", {}, "Gateway service"), Value: daemonValue },
+    { Item: t("statusCmd.nodeService", {}, "Node service"), Value: nodeDaemonValue },
+    { Item: t("statusCmd.agentsRow", {}, "Agents"), Value: agentsValue },
+    { Item: t("statusCmd.memoryRow", {}, "Memory"), Value: memoryValue },
+    { Item: t("statusCmd.probes", {}, "Probes"), Value: probesValue },
+    { Item: t("statusCmd.events", {}, "Events"), Value: eventsValue },
+    { Item: t("statusCmd.heartbeat", {}, "Heartbeat"), Value: heartbeatValue },
+    ...(lastHeartbeatValue
+      ? [{ Item: t("statusCmd.lastHeartbeat", {}, "Last heartbeat"), Value: lastHeartbeatValue }]
+      : []),
     {
-      Item: "Sessions",
+      Item: t("statusCmd.sessionsRow", {}, "Sessions"),
       Value: `${summary.sessions.count} active · default ${defaults.model ?? "unknown"}${defaultCtx} · ${storeLabel}`,
     },
   ];
 
-  runtime.log(theme.heading("OpenClaw status"));
+  runtime.log(theme.heading(t("statusCmd.heading", {}, "OpenClaw status")));
   runtime.log("");
-  runtime.log(theme.heading("Overview"));
+  runtime.log(theme.heading(t("statusCmd.overview", {}, "Overview")));
   runtime.log(
     renderTable({
       width: tableWidth,
       columns: [
-        { key: "Item", header: "Item", minWidth: 12 },
-        { key: "Value", header: "Value", flex: true, minWidth: 32 },
+        { key: "Item", header: t("statusCmd.item", {}, "Item"), minWidth: 12 },
+        { key: "Value", header: t("statusCmd.value", {}, "Value"), flex: true, minWidth: 32 },
       ],
       rows: overviewRows,
     }).trimEnd(),
   );
 
   runtime.log("");
-  runtime.log(theme.heading("Security audit"));
+  runtime.log(theme.heading(t("statusCmd.securityAudit", {}, "Security audit")));
   const fmtSummary = (value: { critical: number; warn: number; info: number }) => {
     const parts = [
       theme.error(`${value.critical} critical`),
@@ -431,7 +448,9 @@ export async function statusCommand(
     (f) => f.severity === "critical" || f.severity === "warn",
   );
   if (importantFindings.length === 0) {
-    runtime.log(theme.muted("No critical or warn findings detected."));
+    runtime.log(
+      theme.muted(t("statusCmd.noCriticalFindings", {}, "No critical or warn findings detected.")),
+    );
   } else {
     const severityLabel = (sev: "critical" | "warn" | "info") => {
       if (sev === "critical") {
@@ -459,11 +478,27 @@ export async function statusCommand(
       runtime.log(theme.muted(`… +${sorted.length - shown.length} more`));
     }
   }
-  runtime.log(theme.muted(`Full report: ${formatCliCommand("openclaw security audit")}`));
-  runtime.log(theme.muted(`Deep probe: ${formatCliCommand("openclaw security audit --deep")}`));
+  runtime.log(
+    theme.muted(
+      t(
+        "statusCmd.fullReport",
+        { command: formatCliCommand("openclaw security audit") },
+        `Full report: ${formatCliCommand("openclaw security audit")}`,
+      ),
+    ),
+  );
+  runtime.log(
+    theme.muted(
+      t(
+        "statusCmd.deepProbe",
+        { command: formatCliCommand("openclaw security audit --deep") },
+        `Deep probe: ${formatCliCommand("openclaw security audit --deep")}`,
+      ),
+    ),
+  );
 
   runtime.log("");
-  runtime.log(theme.heading("Channels"));
+  runtime.log(theme.heading(t("statusCmd.channelsSection", {}, "Channels")));
   const channelIssuesByChannel = (() => {
     const map = new Map<string, typeof channelIssues>();
     for (const issue of channelIssues) {
@@ -481,10 +516,10 @@ export async function statusCommand(
     renderTable({
       width: tableWidth,
       columns: [
-        { key: "Channel", header: "Channel", minWidth: 10 },
-        { key: "Enabled", header: "Enabled", minWidth: 7 },
-        { key: "State", header: "State", minWidth: 8 },
-        { key: "Detail", header: "Detail", flex: true, minWidth: 24 },
+        { key: "Channel", header: t("statusCmd.channel", {}, "Channel"), minWidth: 10 },
+        { key: "Enabled", header: t("statusCmd.enabled", {}, "Enabled"), minWidth: 7 },
+        { key: "State", header: t("statusCmd.state", {}, "State"), minWidth: 8 },
+        { key: "Detail", header: t("statusCmd.detail", {}, "Detail"), flex: true, minWidth: 24 },
       ],
       rows: channels.rows.map((row) => {
         const issues = channelIssuesByChannel.get(row.id) ?? [];
@@ -511,29 +546,31 @@ export async function statusCommand(
   );
 
   runtime.log("");
-  runtime.log(theme.heading("Sessions"));
+  runtime.log(theme.heading(t("statusCmd.sessionsSection", {}, "Sessions")));
   runtime.log(
     renderTable({
       width: tableWidth,
       columns: [
-        { key: "Key", header: "Key", minWidth: 20, flex: true },
-        { key: "Kind", header: "Kind", minWidth: 6 },
-        { key: "Age", header: "Age", minWidth: 9 },
-        { key: "Model", header: "Model", minWidth: 14 },
-        { key: "Tokens", header: "Tokens", minWidth: 16 },
+        { key: "Key", header: t("statusCmd.key", {}, "Key"), minWidth: 20, flex: true },
+        { key: "Kind", header: t("statusCmd.kind", {}, "Kind"), minWidth: 6 },
+        { key: "Age", header: t("statusCmd.age", {}, "Age"), minWidth: 9 },
+        { key: "Model", header: t("statusCmd.model", {}, "Model"), minWidth: 14 },
+        { key: "Tokens", header: t("statusCmd.tokensHeader", {}, "Tokens"), minWidth: 16 },
       ],
       rows:
         summary.sessions.recent.length > 0
           ? summary.sessions.recent.map((sess) => ({
               Key: shortenText(sess.key, 32),
               Kind: sess.kind,
-              Age: sess.updatedAt ? formatAge(sess.age) : "no activity",
-              Model: sess.model ?? "unknown",
+              Age: sess.updatedAt
+                ? formatAge(sess.age)
+                : t("statusCmd.noActivity", {}, "no activity"),
+              Model: sess.model ?? t("statusCmd.unknown", {}, "unknown"),
               Tokens: formatTokensCompact(sess),
             }))
           : [
               {
-                Key: muted("no sessions yet"),
+                Key: muted(t("statusCmd.noSessionsYet", {}, "no sessions yet")),
                 Kind: "",
                 Age: "",
                 Model: "",
@@ -545,11 +582,13 @@ export async function statusCommand(
 
   if (summary.queuedSystemEvents.length > 0) {
     runtime.log("");
-    runtime.log(theme.heading("System events"));
+    runtime.log(theme.heading(t("statusCmd.systemEvents", {}, "System events")));
     runtime.log(
       renderTable({
         width: tableWidth,
-        columns: [{ key: "Event", header: "Event", flex: true, minWidth: 24 }],
+        columns: [
+          { key: "Event", header: t("statusCmd.event", {}, "Event"), flex: true, minWidth: 24 },
+        ],
         rows: summary.queuedSystemEvents.slice(0, 5).map((event) => ({
           Event: event,
         })),
@@ -562,7 +601,7 @@ export async function statusCommand(
 
   if (health) {
     runtime.log("");
-    runtime.log(theme.heading("Health"));
+    runtime.log(theme.heading(t("statusCmd.healthSection", {}, "Health")));
     const rows: Array<Record<string, string>> = [];
     rows.push({
       Item: "Gateway",
@@ -617,27 +656,41 @@ export async function statusCommand(
 
   if (usage) {
     runtime.log("");
-    runtime.log(theme.heading("Usage"));
+    runtime.log(theme.heading(t("statusCmd.usageSection", {}, "Usage")));
     for (const line of formatUsageReportLines(usage)) {
       runtime.log(line);
     }
   }
 
   runtime.log("");
-  runtime.log("FAQ: https://docs.openclaw.ai/faq");
-  runtime.log("Troubleshooting: https://docs.openclaw.ai/troubleshooting");
+  runtime.log(t("statusCmd.faqLink", {}, "FAQ: https://docs.openclaw.ai/faq"));
+  runtime.log(
+    t(
+      "statusCmd.troubleshootingLink",
+      {},
+      "Troubleshooting: https://docs.openclaw.ai/troubleshooting",
+    ),
+  );
   runtime.log("");
   const updateHint = formatUpdateAvailableHint(update);
   if (updateHint) {
     runtime.log(theme.warn(updateHint));
     runtime.log("");
   }
-  runtime.log("Next steps:");
-  runtime.log(`  Need to share?      ${formatCliCommand("openclaw status --all")}`);
-  runtime.log(`  Need to debug live? ${formatCliCommand("openclaw logs --follow")}`);
+  runtime.log(t("statusCmd.nextSteps", {}, "Next steps:"));
+  runtime.log(
+    `  ${t("statusCmd.nextShare", { command: formatCliCommand("openclaw status --all") }, `Need to share?      ${formatCliCommand("openclaw status --all")}`)}`,
+  );
+  runtime.log(
+    `  ${t("statusCmd.nextDebug", { command: formatCliCommand("openclaw logs --follow") }, `Need to debug live? ${formatCliCommand("openclaw logs --follow")}`)}`,
+  );
   if (gatewayReachable) {
-    runtime.log(`  Need to test channels? ${formatCliCommand("openclaw status --deep")}`);
+    runtime.log(
+      `  ${t("statusCmd.nextTestChannels", { command: formatCliCommand("openclaw status --deep") }, `Need to test channels? ${formatCliCommand("openclaw status --deep")}`)}`,
+    );
   } else {
-    runtime.log(`  Fix reachability first: ${formatCliCommand("openclaw gateway probe")}`);
+    runtime.log(
+      `  ${t("statusCmd.nextFixReachability", { command: formatCliCommand("openclaw gateway probe") }, `Fix reachability first: ${formatCliCommand("openclaw gateway probe")}`)}`,
+    );
   }
 }

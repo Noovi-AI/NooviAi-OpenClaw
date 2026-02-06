@@ -1,5 +1,6 @@
 import type { RuntimeEnv } from "../runtime.js";
 import { readConfigFileSnapshot, resolveGatewayPort } from "../config/config.js";
+import { t } from "../i18n/index.js";
 import { copyToClipboard } from "../infra/clipboard.js";
 import { defaultRuntime } from "../runtime.js";
 import {
@@ -32,10 +33,14 @@ export async function dashboardCommand(
   });
   const dashboardUrl = links.httpUrl;
 
-  runtime.log(`Dashboard URL: ${dashboardUrl}`);
+  runtime.log(t("dashboard.url", { url: dashboardUrl }, `Dashboard URL: ${dashboardUrl}`));
 
   const copied = await copyToClipboard(dashboardUrl).catch(() => false);
-  runtime.log(copied ? "Copied to clipboard." : "Copy to clipboard unavailable.");
+  runtime.log(
+    copied
+      ? t("dashboard.copiedToClipboard", {}, "Copied to clipboard.")
+      : t("dashboard.clipboardUnavailable", {}, "Copy to clipboard unavailable."),
+  );
 
   let opened = false;
   let hint: string | undefined;
@@ -51,11 +56,21 @@ export async function dashboardCommand(
       });
     }
   } else {
-    hint = "Browser launch disabled (--no-open). Use the URL above.";
+    hint = t(
+      "dashboard.browserDisabled",
+      {},
+      "Browser launch disabled (--no-open). Use the URL above.",
+    );
   }
 
   if (opened) {
-    runtime.log("Opened in your browser. Keep that tab to control OpenClaw.");
+    runtime.log(
+      t(
+        "dashboard.openedInBrowser",
+        {},
+        "Opened in your browser. Keep that tab to control OpenClaw.",
+      ),
+    );
   } else if (hint) {
     runtime.log(hint);
   }

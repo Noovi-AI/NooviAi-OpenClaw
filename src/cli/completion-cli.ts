@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { resolveStateDir } from "../config/paths.js";
+import { t } from "../i18n/index.js";
 import { getSubCliEntries, registerSubCliByName } from "./program/register.subclis.js";
 
 const COMPLETION_SHELLS = ["zsh", "bash", "powershell", "fish"] as const;
@@ -288,7 +289,13 @@ export async function installCompletion(shell: string, yes: boolean, binName = "
 
   const isShellSupported = isCompletionShell(shell);
   if (!isShellSupported) {
-    console.error(`Automated installation not supported for ${shell} yet.`);
+    console.error(
+      t(
+        "completion.unsupportedShell",
+        { shell },
+        `Automated installation not supported for ${shell} yet.`,
+      ),
+    );
     return;
   }
 
@@ -297,7 +304,11 @@ export async function installCompletion(shell: string, yes: boolean, binName = "
   const cacheExists = await pathExists(cachePath);
   if (!cacheExists) {
     console.error(
-      `Completion cache not found at ${cachePath}. Run \`${binName} completion --write-state\` first.`,
+      t(
+        "completion.cacheNotFound",
+        { cachePath, binName },
+        `Completion cache not found at ${cachePath}. Run \`${binName} completion --write-state\` first.`,
+      ),
     );
     return;
   }
@@ -318,7 +329,13 @@ export async function installCompletion(shell: string, yes: boolean, binName = "
     profilePath = path.join(home, ".config", "fish", "config.fish");
     sourceLine = formatCompletionSourceLine("fish", binName, cachePath);
   } else {
-    console.error(`Automated installation not supported for ${shell} yet.`);
+    console.error(
+      t(
+        "completion.unsupportedShell",
+        { shell },
+        `Automated installation not supported for ${shell} yet.`,
+      ),
+    );
     return;
   }
 
@@ -328,7 +345,13 @@ export async function installCompletion(shell: string, yes: boolean, binName = "
       await fs.access(profilePath);
     } catch {
       if (!yes) {
-        console.warn(`Profile not found at ${profilePath}. Created a new one.`);
+        console.warn(
+          t(
+            "completion.profileCreated",
+            { profilePath },
+            `Profile not found at ${profilePath}. Created a new one.`,
+          ),
+        );
       }
       await fs.mkdir(path.dirname(profilePath), { recursive: true });
       await fs.writeFile(profilePath, "", "utf-8");
@@ -338,22 +361,48 @@ export async function installCompletion(shell: string, yes: boolean, binName = "
     const update = updateCompletionProfile(content, binName, cachePath, sourceLine);
     if (!update.changed) {
       if (!yes) {
-        console.log(`Completion already installed in ${profilePath}`);
+        console.log(
+          t(
+            "completion.alreadyInstalled",
+            { profilePath },
+            `Completion already installed in ${profilePath}`,
+          ),
+        );
       }
       return;
     }
 
     if (!yes) {
-      const action = update.hadExisting ? "Updating" : "Installing";
-      console.log(`${action} completion in ${profilePath}...`);
+      const action = update.hadExisting
+        ? t("completion.actionUpdating", {}, "Updating")
+        : t("completion.actionInstalling", {}, "Installing");
+      console.log(
+        t(
+          "completion.installingIn",
+          { action, profilePath },
+          `${action} completion in ${profilePath}...`,
+        ),
+      );
     }
 
     await fs.writeFile(profilePath, update.next, "utf-8");
     if (!yes) {
-      console.log(`Completion installed. Restart your shell or run: source ${profilePath}`);
+      console.log(
+        t(
+          "completion.installed",
+          { profilePath },
+          `Completion installed. Restart your shell or run: source ${profilePath}`,
+        ),
+      );
     }
   } catch (err) {
-    console.error(`Failed to install completion: ${err as string}`);
+    console.error(
+      t(
+        "completion.installFailed",
+        { error: String(err) },
+        `Failed to install completion: ${err as string}`,
+      ),
+    );
   }
 }
 

@@ -2,6 +2,7 @@ import type { Command } from "commander";
 import type { CronJob } from "../../cron/types.js";
 import type { GatewayRpcOpts } from "../gateway-rpc.js";
 import { danger } from "../../globals.js";
+import { t } from "../../i18n/index.js";
 import { sanitizeAgentId } from "../../routing/session-key.js";
 import { defaultRuntime } from "../../runtime.js";
 import { addGatewayClientOptions, callGatewayFromCli } from "../gateway-rpc.js";
@@ -99,19 +100,29 @@ export function registerCronAddCommand(cron: Command) {
             const cronExpr = typeof opts.cron === "string" ? opts.cron : "";
             const chosen = [Boolean(at), Boolean(every), Boolean(cronExpr)].filter(Boolean).length;
             if (chosen !== 1) {
-              throw new Error("Choose exactly one schedule: --at, --every, or --cron");
+              throw new Error(
+                t(
+                  "cron.errorChooseOneSchedule",
+                  {},
+                  "Choose exactly one schedule: --at, --every, or --cron",
+                ),
+              );
             }
             if (at) {
               const atIso = parseAt(at);
               if (!atIso) {
-                throw new Error("Invalid --at; use ISO time or duration like 20m");
+                throw new Error(
+                  t("cron.errorInvalidAt", {}, "Invalid --at; use ISO time or duration like 20m"),
+                );
               }
               return { kind: "at" as const, at: atIso };
             }
             if (every) {
               const everyMs = parseDurationMs(every);
               if (!everyMs) {
-                throw new Error("Invalid --every; use e.g. 10m, 1h, 1d");
+                throw new Error(
+                  t("cron.errorInvalidEvery", {}, "Invalid --every; use e.g. 10m, 1h, 1d"),
+                );
               }
               return { kind: "every" as const, everyMs };
             }
@@ -125,7 +136,7 @@ export function registerCronAddCommand(cron: Command) {
           const wakeModeRaw = typeof opts.wake === "string" ? opts.wake : "next-heartbeat";
           const wakeMode = wakeModeRaw.trim() || "next-heartbeat";
           if (wakeMode !== "now" && wakeMode !== "next-heartbeat") {
-            throw new Error("--wake must be now or next-heartbeat");
+            throw new Error(t("cron.errorWakeMode", {}, "--wake must be now or next-heartbeat"));
           }
 
           const agentId =
@@ -137,7 +148,13 @@ export function registerCronAddCommand(cron: Command) {
           const hasNoDeliver = opts.deliver === false;
           const deliveryFlagCount = [hasAnnounce, hasNoDeliver].filter(Boolean).length;
           if (deliveryFlagCount > 1) {
-            throw new Error("Choose at most one of --announce or --no-deliver");
+            throw new Error(
+              t(
+                "cron.errorAnnounceOrNoDeliver",
+                {},
+                "Choose at most one of --announce or --no-deliver",
+              ),
+            );
           }
 
           const payload = (() => {
@@ -145,7 +162,13 @@ export function registerCronAddCommand(cron: Command) {
             const message = typeof opts.message === "string" ? opts.message.trim() : "";
             const chosen = [Boolean(systemEvent), Boolean(message)].filter(Boolean).length;
             if (chosen !== 1) {
-              throw new Error("Choose exactly one payload: --system-event or --message");
+              throw new Error(
+                t(
+                  "cron.errorChooseOnePayload",
+                  {},
+                  "Choose exactly one payload: --system-event or --message",
+                ),
+              );
             }
             if (systemEvent) {
               return { kind: "systemEvent" as const, text: systemEvent };
@@ -175,24 +198,48 @@ export function registerCronAddCommand(cron: Command) {
           const sessionTarget =
             sessionSource === "cli" ? sessionTargetRaw || "" : inferredSessionTarget;
           if (sessionTarget !== "main" && sessionTarget !== "isolated") {
-            throw new Error("--session must be main or isolated");
+            throw new Error(t("cron.errorSessionTarget", {}, "--session must be main or isolated"));
           }
 
           if (opts.deleteAfterRun && opts.keepAfterRun) {
-            throw new Error("Choose --delete-after-run or --keep-after-run, not both");
+            throw new Error(
+              t(
+                "cron.errorDeleteOrKeep",
+                {},
+                "Choose --delete-after-run or --keep-after-run, not both",
+              ),
+            );
           }
 
           if (sessionTarget === "main" && payload.kind !== "systemEvent") {
-            throw new Error("Main jobs require --system-event (systemEvent).");
+            throw new Error(
+              t(
+                "cron.errorMainRequiresSystemEvent",
+                {},
+                "Main jobs require --system-event (systemEvent).",
+              ),
+            );
           }
           if (sessionTarget === "isolated" && payload.kind !== "agentTurn") {
-            throw new Error("Isolated jobs require --message (agentTurn).");
+            throw new Error(
+              t(
+                "cron.errorIsolatedRequiresMessage",
+                {},
+                "Isolated jobs require --message (agentTurn).",
+              ),
+            );
           }
           if (
             (opts.announce || typeof opts.deliver === "boolean") &&
             (sessionTarget !== "isolated" || payload.kind !== "agentTurn")
           ) {
-            throw new Error("--announce/--no-deliver require --session isolated.");
+            throw new Error(
+              t(
+                "cron.errorAnnounceRequiresIsolated",
+                {},
+                "--announce/--no-deliver require --session isolated.",
+              ),
+            );
           }
 
           const deliveryMode =
@@ -207,7 +254,7 @@ export function registerCronAddCommand(cron: Command) {
           const nameRaw = typeof opts.name === "string" ? opts.name : "";
           const name = nameRaw.trim();
           if (!name) {
-            throw new Error("--name is required");
+            throw new Error(t("cron.errorNameRequired", {}, "--name is required"));
           }
 
           const description =

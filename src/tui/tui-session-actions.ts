@@ -3,6 +3,7 @@ import type { SessionsPatchResult } from "../gateway/protocol/index.js";
 import type { ChatLog } from "./components/chat-log.js";
 import type { GatewayAgentsList, GatewayChatClient } from "./gateway-chat.js";
 import type { TuiOptions, TuiStateAccess } from "./tui-types.js";
+import { t } from "../i18n/index.js";
 import {
   normalizeAgentId,
   normalizeMainKey,
@@ -111,7 +112,9 @@ export function createSessionActions(context: SessionActionContext) {
       const result = await client.listAgents();
       applyAgentsResult(result);
     } catch (err) {
-      chatLog.addSystem(`agents list failed: ${String(err)}`);
+      chatLog.addSystem(
+        t("tui.agentsListFailed", { error: String(err) }, `agents list failed: ${String(err)}`),
+      );
     }
   };
 
@@ -260,7 +263,9 @@ export function createSessionActions(context: SessionActionContext) {
         defaults: result.defaults,
       });
     } catch (err) {
-      chatLog.addSystem(`sessions list failed: ${String(err)}`);
+      chatLog.addSystem(
+        t("tui.sessionsListFailed", { error: String(err) }, `sessions list failed: ${String(err)}`),
+      );
     }
   };
 
@@ -310,7 +315,13 @@ export function createSessionActions(context: SessionActionContext) {
       state.sessionInfo.verboseLevel = record.verboseLevel ?? state.sessionInfo.verboseLevel;
       const showTools = (state.sessionInfo.verboseLevel ?? "off") !== "off";
       chatLog.clearAll();
-      chatLog.addSystem(`session ${state.currentSessionKey}`);
+      chatLog.addSystem(
+        t(
+          "tui.sessionLabel",
+          { key: state.currentSessionKey },
+          `session ${state.currentSessionKey}`,
+        ),
+      );
       for (const entry of record.messages ?? []) {
         if (!entry || typeof entry !== "object") {
           continue;
@@ -362,7 +373,9 @@ export function createSessionActions(context: SessionActionContext) {
       }
       state.historyLoaded = true;
     } catch (err) {
-      chatLog.addSystem(`history failed: ${String(err)}`);
+      chatLog.addSystem(
+        t("tui.historyFailed", { error: String(err) }, `history failed: ${String(err)}`),
+      );
     }
     await refreshSessionInfo();
     tui.requestRender();
@@ -383,7 +396,7 @@ export function createSessionActions(context: SessionActionContext) {
 
   const abortActive = async () => {
     if (!state.activeChatRunId) {
-      chatLog.addSystem("no active run");
+      chatLog.addSystem(t("tui.noActiveRun", {}, "no active run"));
       tui.requestRender();
       return;
     }
@@ -394,8 +407,10 @@ export function createSessionActions(context: SessionActionContext) {
       });
       setActivityStatus("aborted");
     } catch (err) {
-      chatLog.addSystem(`abort failed: ${String(err)}`);
-      setActivityStatus("abort failed");
+      chatLog.addSystem(
+        t("tui.abortFailed", { error: String(err) }, `abort failed: ${String(err)}`),
+      );
+      setActivityStatus(t("tui.abortFailedStatus", {}, "abort failed"));
     }
     tui.requestRender();
   };

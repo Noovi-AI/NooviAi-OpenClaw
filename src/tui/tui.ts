@@ -15,6 +15,7 @@ import type {
 } from "./tui-types.js";
 import { resolveDefaultAgentId } from "../agents/agent-scope.js";
 import { loadConfig } from "../config/config.js";
+import { t } from "../i18n/index.js";
 import {
   buildAgentMainSessionKey,
   normalizeAgentId,
@@ -482,7 +483,9 @@ export async function runTui(opts: TuiOptions) {
     }
     if (ttlMs && ttlMs > 0) {
       statusTimeout = setTimeout(() => {
-        connectionStatus = isConnected ? "connected" : "disconnected";
+        connectionStatus = isConnected
+          ? t("tui.connected", {}, "connected")
+          : t("tui.disconnected", {}, "disconnected");
         renderStatus();
       }, ttlMs);
     }
@@ -503,7 +506,7 @@ export async function runTui(opts: TuiOptions) {
       ? sessionInfo.modelProvider
         ? `${sessionInfo.modelProvider}/${sessionInfo.model}`
         : sessionInfo.model
-      : "unknown";
+      : t("tui.unknown", {}, "unknown");
     const tokens = formatTokens(sessionInfo.totalTokens ?? null, sessionInfo.contextTokens ?? null);
     const think = sessionInfo.thinkingLevel ?? "off";
     const verbose = sessionInfo.verboseLevel ?? "off";
@@ -612,7 +615,7 @@ export async function runTui(opts: TuiOptions) {
     const now = Date.now();
     if (editor.getText().trim().length > 0) {
       editor.setText("");
-      setActivityStatus("cleared input");
+      setActivityStatus(t("tui.clearedInput", {}, "cleared input"));
       tui.requestRender();
       return;
     }
@@ -622,7 +625,7 @@ export async function runTui(opts: TuiOptions) {
       process.exit(0);
     }
     lastCtrlCAt = now;
-    setActivityStatus("press ctrl+c again to exit");
+    setActivityStatus(t("tui.pressCtrlCAgain", {}, "press ctrl+c again to exit"));
     tui.requestRender();
   };
   editor.onCtrlD = () => {
@@ -633,7 +636,11 @@ export async function runTui(opts: TuiOptions) {
   editor.onCtrlO = () => {
     toolsExpanded = !toolsExpanded;
     chatLog.setToolsExpanded(toolsExpanded);
-    setActivityStatus(toolsExpanded ? "tools expanded" : "tools collapsed");
+    setActivityStatus(
+      toolsExpanded
+        ? t("tui.toolsExpanded", {}, "tools expanded")
+        : t("tui.toolsCollapsed", {}, "tools collapsed"),
+    );
     tui.requestRender();
   };
   editor.onCtrlL = () => {
@@ -663,12 +670,17 @@ export async function runTui(opts: TuiOptions) {
     isConnected = true;
     const reconnected = wasDisconnected;
     wasDisconnected = false;
-    setConnectionStatus("connected");
+    setConnectionStatus(t("tui.connected", {}, "connected"));
     void (async () => {
       await refreshAgents();
       updateHeader();
       await loadHistory();
-      setConnectionStatus(reconnected ? "gateway reconnected" : "gateway connected", 4000);
+      setConnectionStatus(
+        reconnected
+          ? t("tui.gatewayReconnected", {}, "gateway reconnected")
+          : t("tui.gatewayConnected", {}, "gateway connected"),
+        4000,
+      );
       tui.requestRender();
       if (!autoMessageSent && autoMessage) {
         autoMessageSent = true;
@@ -683,20 +695,30 @@ export async function runTui(opts: TuiOptions) {
     isConnected = false;
     wasDisconnected = true;
     historyLoaded = false;
-    const reasonLabel = reason?.trim() ? reason.trim() : "closed";
-    setConnectionStatus(`gateway disconnected: ${reasonLabel}`, 5000);
+    const reasonLabel = reason?.trim() ? reason.trim() : t("tui.closed", {}, "closed");
+    setConnectionStatus(
+      t("tui.gatewayDisconnected", { reason: reasonLabel }, `gateway disconnected: ${reasonLabel}`),
+      5000,
+    );
     setActivityStatus("idle");
     updateFooter();
     tui.requestRender();
   };
 
   client.onGap = (info) => {
-    setConnectionStatus(`event gap: expected ${info.expected}, got ${info.received}`, 5000);
+    setConnectionStatus(
+      t(
+        "tui.eventGap",
+        { expected: info.expected, received: info.received },
+        `event gap: expected ${info.expected}, got ${info.received}`,
+      ),
+      5000,
+    );
     tui.requestRender();
   };
 
   updateHeader();
-  setConnectionStatus("connecting");
+  setConnectionStatus(t("tui.connecting", {}, "connecting"));
   updateFooter();
   tui.start();
   client.start();

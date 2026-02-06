@@ -2,6 +2,7 @@ import type { CronJob, CronSchedule } from "../../cron/types.js";
 import type { GatewayRpcOpts } from "../gateway-rpc.js";
 import { listChannelPlugins } from "../../channels/plugins/index.js";
 import { parseAbsoluteTimeMs } from "../../cron/parse.js";
+import { t } from "../../i18n/index.js";
 import { defaultRuntime } from "../../runtime.js";
 import { colorize, isRich, theme } from "../../terminal/theme.js";
 import { callGatewayFromCli } from "../gateway-rpc.js";
@@ -21,9 +22,17 @@ export async function warnIfCronSchedulerDisabled(opts: GatewayRpcOpts) {
     const store = typeof res?.storePath === "string" ? res.storePath : "";
     defaultRuntime.error(
       [
-        "warning: cron scheduler is disabled in the Gateway; jobs are saved but will not run automatically.",
-        "Re-enable with `cron.enabled: true` (or remove `cron.enabled: false`) and restart the Gateway.",
-        store ? `store: ${store}` : "",
+        t(
+          "cron.schedulerDisabledWarning",
+          {},
+          "warning: cron scheduler is disabled in the Gateway; jobs are saved but will not run automatically.",
+        ),
+        t(
+          "cron.schedulerReEnable",
+          {},
+          "Re-enable with `cron.enabled: true` (or remove `cron.enabled: false`) and restart the Gateway.",
+        ),
+        store ? t("cron.store", { store }, `store: ${store}`) : "",
       ]
         .filter(Boolean)
         .join("\n"),
@@ -164,20 +173,20 @@ const formatStatus = (job: CronJob) => {
 
 export function printCronList(jobs: CronJob[], runtime = defaultRuntime) {
   if (jobs.length === 0) {
-    runtime.log("No cron jobs.");
+    runtime.log(t("cron.noJobs", {}, "No cron jobs."));
     return;
   }
 
   const rich = isRich();
   const header = [
-    pad("ID", CRON_ID_PAD),
-    pad("Name", CRON_NAME_PAD),
-    pad("Schedule", CRON_SCHEDULE_PAD),
-    pad("Next", CRON_NEXT_PAD),
-    pad("Last", CRON_LAST_PAD),
-    pad("Status", CRON_STATUS_PAD),
-    pad("Target", CRON_TARGET_PAD),
-    pad("Agent", CRON_AGENT_PAD),
+    pad(t("cron.headerId", {}, "ID"), CRON_ID_PAD),
+    pad(t("cron.headerName", {}, "Name"), CRON_NAME_PAD),
+    pad(t("cron.headerSchedule", {}, "Schedule"), CRON_SCHEDULE_PAD),
+    pad(t("cron.headerNext", {}, "Next"), CRON_NEXT_PAD),
+    pad(t("cron.headerLast", {}, "Last"), CRON_LAST_PAD),
+    pad(t("cron.headerStatus", {}, "Status"), CRON_STATUS_PAD),
+    pad(t("cron.headerTarget", {}, "Target"), CRON_TARGET_PAD),
+    pad(t("cron.headerAgent", {}, "Agent"), CRON_AGENT_PAD),
   ].join(" ");
 
   runtime.log(rich ? theme.heading(header) : header);

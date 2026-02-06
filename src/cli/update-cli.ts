@@ -15,6 +15,7 @@ import {
   resolveUpdateAvailability,
 } from "../commands/status.update.js";
 import { readConfigFileSnapshot, writeConfigFile } from "../config/config.js";
+import { t } from "../i18n/index.js";
 import { resolveOpenClawPackageRoot } from "../infra/openclaw-root.js";
 import { trimLogTail } from "../infra/restart-sentinel.js";
 import { parseSemver } from "../infra/runtime-guard.js";
@@ -77,48 +78,52 @@ export type UpdateWizardOptions = {
 };
 
 const STEP_LABELS: Record<string, string> = {
-  "clean check": "Working directory is clean",
-  "upstream check": "Upstream branch exists",
-  "git fetch": "Fetching latest changes",
-  "git rebase": "Rebasing onto target commit",
-  "git rev-parse @{upstream}": "Resolving upstream commit",
-  "git rev-list": "Enumerating candidate commits",
-  "git clone": "Cloning git checkout",
-  "preflight worktree": "Preparing preflight worktree",
-  "preflight cleanup": "Cleaning preflight worktree",
-  "deps install": "Installing dependencies",
-  build: "Building",
-  "ui:build": "Building UI assets",
-  "ui:build (post-doctor repair)": "Restoring missing UI assets",
-  "ui assets verify": "Validating UI assets",
-  "openclaw doctor entry": "Checking doctor entrypoint",
-  "openclaw doctor": "Running doctor checks",
-  "git rev-parse HEAD (after)": "Verifying update",
-  "global update": "Updating via package manager",
-  "global install": "Installing global package",
+  "clean check": t("update.steps.cleanCheck", {}, "Working directory is clean"),
+  "upstream check": t("update.steps.upstreamCheck", {}, "Upstream branch exists"),
+  "git fetch": t("update.steps.gitFetch", {}, "Fetching latest changes"),
+  "git rebase": t("update.steps.gitRebase", {}, "Rebasing onto target commit"),
+  "git rev-parse @{upstream}": t("update.steps.resolveUpstream", {}, "Resolving upstream commit"),
+  "git rev-list": t("update.steps.enumCommits", {}, "Enumerating candidate commits"),
+  "git clone": t("update.steps.gitClone", {}, "Cloning git checkout"),
+  "preflight worktree": t("update.steps.preflightWorktree", {}, "Preparing preflight worktree"),
+  "preflight cleanup": t("update.steps.preflightCleanup", {}, "Cleaning preflight worktree"),
+  "deps install": t("update.steps.depsInstall", {}, "Installing dependencies"),
+  build: t("update.steps.build", {}, "Building"),
+  "ui:build": t("update.steps.uiBuild", {}, "Building UI assets"),
+  "ui:build (post-doctor repair)": t(
+    "update.steps.uiBuildRepair",
+    {},
+    "Restoring missing UI assets",
+  ),
+  "ui assets verify": t("update.steps.uiAssetsVerify", {}, "Validating UI assets"),
+  "openclaw doctor entry": t("update.steps.doctorEntry", {}, "Checking doctor entrypoint"),
+  "openclaw doctor": t("update.steps.doctorRun", {}, "Running doctor checks"),
+  "git rev-parse HEAD (after)": t("update.steps.verifyUpdate", {}, "Verifying update"),
+  "global update": t("update.steps.globalUpdate", {}, "Updating via package manager"),
+  "global install": t("update.steps.globalInstall", {}, "Installing global package"),
 };
 
 const UPDATE_QUIPS = [
-  "Leveled up! New skills unlocked. You're welcome.",
-  "Fresh code, same lobster. Miss me?",
-  "Back and better. Did you even notice I was gone?",
-  "Update complete. I learned some new tricks while I was out.",
-  "Upgraded! Now with 23% more sass.",
-  "I've evolved. Try to keep up.",
-  "New version, who dis? Oh right, still me but shinier.",
-  "Patched, polished, and ready to pinch. Let's go.",
-  "The lobster has molted. Harder shell, sharper claws.",
-  "Update done! Check the changelog or just trust me, it's good.",
-  "Reborn from the boiling waters of npm. Stronger now.",
-  "I went away and came back smarter. You should try it sometime.",
-  "Update complete. The bugs feared me, so they left.",
-  "New version installed. Old version sends its regards.",
-  "Firmware fresh. Brain wrinkles: increased.",
-  "I've seen things you wouldn't believe. Anyway, I'm updated.",
-  "Back online. The changelog is long but our friendship is longer.",
-  "Upgraded! Peter fixed stuff. Blame him if it breaks.",
-  "Molting complete. Please don't look at my soft shell phase.",
-  "Version bump! Same chaos energy, fewer crashes (probably).",
+  t("update.quip1", {}, "Leveled up! New skills unlocked. You're welcome."),
+  t("update.quip2", {}, "Fresh code, same lobster. Miss me?"),
+  t("update.quip3", {}, "Back and better. Did you even notice I was gone?"),
+  t("update.quip4", {}, "Update complete. I learned some new tricks while I was out."),
+  t("update.quip5", {}, "Upgraded! Now with 23% more sass."),
+  t("update.quip6", {}, "I've evolved. Try to keep up."),
+  t("update.quip7", {}, "New version, who dis? Oh right, still me but shinier."),
+  t("update.quip8", {}, "Patched, polished, and ready to pinch. Let's go."),
+  t("update.quip9", {}, "The lobster has molted. Harder shell, sharper claws."),
+  t("update.quip10", {}, "Update done! Check the changelog or just trust me, it's good."),
+  t("update.quip11", {}, "Reborn from the boiling waters of npm. Stronger now."),
+  t("update.quip12", {}, "I went away and came back smarter. You should try it sometime."),
+  t("update.quip13", {}, "Update complete. The bugs feared me, so they left."),
+  t("update.quip14", {}, "New version installed. Old version sends its regards."),
+  t("update.quip15", {}, "Firmware fresh. Brain wrinkles: increased."),
+  t("update.quip16", {}, "I've seen things you wouldn't believe. Anyway, I'm updated."),
+  t("update.quip17", {}, "Back online. The changelog is long but our friendship is longer."),
+  t("update.quip18", {}, "Upgraded! Peter fixed stuff. Blame him if it breaks."),
+  t("update.quip19", {}, "Molting complete. Please don't look at my soft shell phase."),
+  t("update.quip20", {}, "Version bump! Same chaos energy, fewer crashes (probably)."),
 ];
 
 const MAX_LOG_CHARS = 8000;
@@ -146,7 +151,10 @@ function normalizeTag(value?: string | null): string | null {
 }
 
 function pickUpdateQuip(): string {
-  return UPDATE_QUIPS[Math.floor(Math.random() * UPDATE_QUIPS.length)] ?? "Update complete.";
+  return (
+    UPDATE_QUIPS[Math.floor(Math.random() * UPDATE_QUIPS.length)] ??
+    t("update.complete", {}, "Update complete.")
+  );
 }
 
 function normalizeVersionTag(tag: string): string | null {
@@ -223,14 +231,30 @@ async function tryWriteCompletionCache(root: string, jsonMode: boolean): Promise
   });
   if (result.error) {
     if (!jsonMode) {
-      defaultRuntime.log(theme.warn(`Completion cache update failed: ${String(result.error)}`));
+      defaultRuntime.log(
+        theme.warn(
+          t(
+            "update.completionCacheFailed",
+            { error: String(result.error) },
+            `Completion cache update failed: ${String(result.error)}`,
+          ),
+        ),
+      );
     }
     return;
   }
   if (result.status !== 0 && !jsonMode) {
     const stderr = (result.stderr ?? "").toString().trim();
     const detail = stderr ? ` (${stderr})` : "";
-    defaultRuntime.log(theme.warn(`Completion cache update failed${detail}.`));
+    defaultRuntime.log(
+      theme.warn(
+        t(
+          "update.completionCacheFailedDetail",
+          { detail },
+          `Completion cache update failed${detail}.`,
+        ),
+      ),
+    );
   }
 }
 
@@ -247,7 +271,11 @@ async function tryInstallShellCompletion(opts: {
 
   // Profile uses slow dynamic pattern - upgrade to cached version
   if (status.usesSlowPattern) {
-    defaultRuntime.log(theme.muted("Upgrading shell completion to cached version..."));
+    defaultRuntime.log(
+      theme.muted(
+        t("update.upgradingCompletion", {}, "Upgrading shell completion to cached version..."),
+      ),
+    );
     // Ensure cache exists first
     const cacheGenerated = await ensureCompletionCacheExists(CLI_NAME);
     if (cacheGenerated) {
@@ -258,7 +286,11 @@ async function tryInstallShellCompletion(opts: {
 
   // Profile has completion but no cache - auto-fix silently
   if (status.profileInstalled && !status.cacheExists) {
-    defaultRuntime.log(theme.muted("Regenerating shell completion cache..."));
+    defaultRuntime.log(
+      theme.muted(
+        t("update.regeneratingCompletionCache", {}, "Regenerating shell completion cache..."),
+      ),
+    );
     await ensureCompletionCacheExists(CLI_NAME);
     return;
   }
@@ -266,10 +298,16 @@ async function tryInstallShellCompletion(opts: {
   // No completion at all - prompt to install
   if (!status.profileInstalled) {
     defaultRuntime.log("");
-    defaultRuntime.log(theme.heading("Shell completion"));
+    defaultRuntime.log(theme.heading(t("update.shellCompletionHeading", {}, "Shell completion")));
 
     const shouldInstall = await confirm({
-      message: stylePromptMessage(`Enable ${status.shell} shell completion for ${CLI_NAME}?`),
+      message: stylePromptMessage(
+        t(
+          "update.enableShellCompletion",
+          { shell: status.shell, cliName: CLI_NAME },
+          `Enable ${status.shell} shell completion for ${CLI_NAME}?`,
+        ),
+      ),
       initialValue: true,
     });
 
@@ -277,7 +315,16 @@ async function tryInstallShellCompletion(opts: {
       if (!opts.skipPrompt) {
         defaultRuntime.log(
           theme.muted(
-            `Skipped. Run \`${replaceCliName(formatCliCommand("openclaw completion --install"), CLI_NAME)}\` later to enable.`,
+            t(
+              "update.shellCompletionSkipped",
+              {
+                command: replaceCliName(
+                  formatCliCommand("openclaw completion --install"),
+                  CLI_NAME,
+                ),
+              },
+              `Skipped. Run \`${replaceCliName(formatCliCommand("openclaw completion --install"), CLI_NAME)}\` later to enable.`,
+            ),
           ),
         );
       }
@@ -287,7 +334,11 @@ async function tryInstallShellCompletion(opts: {
     // Generate cache first (required for fast shell startup)
     const cacheGenerated = await ensureCompletionCacheExists(CLI_NAME);
     if (!cacheGenerated) {
-      defaultRuntime.log(theme.warn("Failed to generate completion cache."));
+      defaultRuntime.log(
+        theme.warn(
+          t("update.completionCacheGenerateFailed", {}, "Failed to generate completion cache."),
+        ),
+      );
       return;
     }
 
@@ -384,7 +435,11 @@ async function ensureGitCheckout(params: {
     const empty = await isEmptyDir(params.dir);
     if (!empty) {
       throw new Error(
-        `OPENCLAW_GIT_DIR points at a non-git directory: ${params.dir}. Set OPENCLAW_GIT_DIR to an empty folder or an openclaw checkout.`,
+        t(
+          "update.nonGitDirectory",
+          { dir: params.dir },
+          `OPENCLAW_GIT_DIR points at a non-git directory: ${params.dir}. Set OPENCLAW_GIT_DIR to an empty folder or an openclaw checkout.`,
+        ),
       );
     }
     return await runUpdateStep({
@@ -397,7 +452,13 @@ async function ensureGitCheckout(params: {
   }
 
   if (!(await isCorePackage(params.dir))) {
-    throw new Error(`OPENCLAW_GIT_DIR does not look like a core checkout: ${params.dir}.`);
+    throw new Error(
+      t(
+        "update.notCoreCheckout",
+        { dir: params.dir },
+        `OPENCLAW_GIT_DIR does not look like a core checkout: ${params.dir}.`,
+      ),
+    );
   }
 
   return null;
@@ -445,7 +506,9 @@ function formatGitStatusLine(params: {
 export async function updateStatusCommand(opts: UpdateStatusOptions): Promise<void> {
   const timeoutMs = opts.timeout ? Number.parseInt(opts.timeout, 10) * 1000 : undefined;
   if (timeoutMs !== undefined && (Number.isNaN(timeoutMs) || timeoutMs <= 0)) {
-    defaultRuntime.error("--timeout must be a positive integer (seconds)");
+    defaultRuntime.error(
+      t("update.timeoutInvalid", {}, "--timeout must be a positive integer (seconds)"),
+    );
     defaultRuntime.exit(1);
     return;
   }
@@ -517,23 +580,30 @@ export async function updateStatusCommand(opts: UpdateStatusOptions): Promise<vo
         ? update.packageManager
         : "unknown";
   const rows = [
-    { Item: "Install", Value: installLabel },
-    { Item: "Channel", Value: channelLabel },
-    ...(gitLabel ? [{ Item: "Git", Value: gitLabel }] : []),
+    { Item: t("update.statusItemInstall", {}, "Install"), Value: installLabel },
+    { Item: t("update.statusItemChannel", {}, "Channel"), Value: channelLabel },
+    ...(gitLabel ? [{ Item: t("update.statusItemGit", {}, "Git"), Value: gitLabel }] : []),
     {
-      Item: "Update",
-      Value: updateAvailability.available ? theme.warn(`available · ${updateLine}`) : updateLine,
+      Item: t("update.statusItemUpdate", {}, "Update"),
+      Value: updateAvailability.available
+        ? theme.warn(`${t("update.available", {}, "available")} · ${updateLine}`)
+        : updateLine,
     },
   ];
 
-  defaultRuntime.log(theme.heading("OpenClaw update status"));
+  defaultRuntime.log(theme.heading(t("update.statusHeading", {}, "OpenClaw update status")));
   defaultRuntime.log("");
   defaultRuntime.log(
     renderTable({
       width: tableWidth,
       columns: [
-        { key: "Item", header: "Item", minWidth: 10 },
-        { key: "Value", header: "Value", flex: true, minWidth: 24 },
+        { key: "Item", header: t("update.tableHeaderItem", {}, "Item"), minWidth: 10 },
+        {
+          key: "Value",
+          header: t("update.tableHeaderValue", {}, "Value"),
+          flex: true,
+          minWidth: 24,
+        },
       ],
       rows,
     }).trimEnd(),
@@ -645,27 +715,29 @@ function printResult(result: UpdateRunResult, opts: PrintResultOptions) {
 
   defaultRuntime.log("");
   defaultRuntime.log(
-    `${theme.heading("Update Result:")} ${statusColor(result.status.toUpperCase())}`,
+    `${theme.heading(t("update.resultHeading", {}, "Update Result:"))} ${statusColor(result.status.toUpperCase())}`,
   );
   if (result.root) {
-    defaultRuntime.log(`  Root: ${theme.muted(result.root)}`);
+    defaultRuntime.log(`  ${t("update.resultRoot", {}, "Root")}: ${theme.muted(result.root)}`);
   }
   if (result.reason) {
-    defaultRuntime.log(`  Reason: ${theme.muted(result.reason)}`);
+    defaultRuntime.log(
+      `  ${t("update.resultReason", {}, "Reason")}: ${theme.muted(result.reason)}`,
+    );
   }
 
   if (result.before?.version || result.before?.sha) {
     const before = result.before.version ?? result.before.sha?.slice(0, 8) ?? "";
-    defaultRuntime.log(`  Before: ${theme.muted(before)}`);
+    defaultRuntime.log(`  ${t("update.resultBefore", {}, "Before")}: ${theme.muted(before)}`);
   }
   if (result.after?.version || result.after?.sha) {
     const after = result.after.version ?? result.after.sha?.slice(0, 8) ?? "";
-    defaultRuntime.log(`  After: ${theme.muted(after)}`);
+    defaultRuntime.log(`  ${t("update.resultAfter", {}, "After")}: ${theme.muted(after)}`);
   }
 
   if (!opts.hideSteps && result.steps.length > 0) {
     defaultRuntime.log("");
-    defaultRuntime.log(theme.heading("Steps:"));
+    defaultRuntime.log(theme.heading(t("update.stepsHeading", {}, "Steps:")));
     for (const step of result.steps) {
       const status = formatStepStatus(step.exitCode);
       const duration = theme.muted(`(${formatDuration(step.durationMs)})`);
@@ -683,7 +755,9 @@ function printResult(result: UpdateRunResult, opts: PrintResultOptions) {
   }
 
   defaultRuntime.log("");
-  defaultRuntime.log(`Total time: ${theme.muted(formatDuration(result.durationMs))}`);
+  defaultRuntime.log(
+    `${t("update.totalTime", {}, "Total time")}: ${theme.muted(formatDuration(result.durationMs))}`,
+  );
 }
 
 export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
@@ -693,7 +767,9 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
   const shouldRestart = opts.restart !== false;
 
   if (timeoutMs !== undefined && (Number.isNaN(timeoutMs) || timeoutMs <= 0)) {
-    defaultRuntime.error("--timeout must be a positive integer (seconds)");
+    defaultRuntime.error(
+      t("update.timeoutInvalid", {}, "--timeout must be a positive integer (seconds)"),
+    );
     defaultRuntime.exit(1);
     return;
   }
@@ -720,13 +796,28 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
 
   const requestedChannel = normalizeUpdateChannel(opts.channel);
   if (opts.channel && !requestedChannel) {
-    defaultRuntime.error(`--channel must be "stable", "beta", or "dev" (got "${opts.channel}")`);
+    defaultRuntime.error(
+      t(
+        "update.channelInvalid",
+        { channel: opts.channel },
+        `--channel must be "stable", "beta", or "dev" (got "${opts.channel}")`,
+      ),
+    );
     defaultRuntime.exit(1);
     return;
   }
   if (opts.channel && !configSnapshot.valid) {
     const issues = configSnapshot.issues.map((issue) => `- ${issue.path}: ${issue.message}`);
-    defaultRuntime.error(["Config is invalid; cannot set update channel.", ...issues].join("\n"));
+    defaultRuntime.error(
+      [
+        t(
+          "update.configInvalidCannotSetChannel",
+          {},
+          "Config is invalid; cannot set update channel.",
+        ),
+        ...issues,
+      ].join("\n"),
+    );
     defaultRuntime.exit(1);
     return;
   }
@@ -762,23 +853,31 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
       if (!process.stdin.isTTY || opts.json) {
         defaultRuntime.error(
           [
-            "Downgrade confirmation required.",
-            "Downgrading can break configuration. Re-run in a TTY to confirm.",
+            t("update.downgradeConfirmRequired", {}, "Downgrade confirmation required."),
+            t(
+              "update.downgradeRerunTty",
+              {},
+              "Downgrading can break configuration. Re-run in a TTY to confirm.",
+            ),
           ].join("\n"),
         );
         defaultRuntime.exit(1);
         return;
       }
 
-      const targetLabel = targetVersion ?? `${tag} (unknown)`;
-      const message = `Downgrading from ${currentVersion} to ${targetLabel} can break configuration. Continue?`;
+      const targetLabel = targetVersion ?? `${tag} (${t("update.unknown", {}, "unknown")})`;
+      const message = t(
+        "update.downgradeConfirmMessage",
+        { from: currentVersion, to: targetLabel },
+        `Downgrading from ${currentVersion} to ${targetLabel} can break configuration. Continue?`,
+      );
       const ok = await confirm({
         message: stylePromptMessage(message),
         initialValue: false,
       });
       if (isCancel(ok) || !ok) {
         if (!opts.json) {
-          defaultRuntime.log(theme.muted("Update cancelled."));
+          defaultRuntime.log(theme.muted(t("update.cancelled", {}, "Update cancelled.")));
         }
         defaultRuntime.exit(0);
         return;
@@ -786,7 +885,13 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
     }
   } else if (opts.tag && !opts.json) {
     defaultRuntime.log(
-      theme.muted("Note: --tag applies to npm installs only; git updates ignore it."),
+      theme.muted(
+        t(
+          "update.tagIgnoredForGit",
+          {},
+          "Note: --tag applies to npm installs only; git updates ignore it.",
+        ),
+      ),
     );
   }
 
@@ -801,14 +906,22 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
     await writeConfigFile(next);
     activeConfig = next;
     if (!opts.json) {
-      defaultRuntime.log(theme.muted(`Update channel set to ${requestedChannel}.`));
+      defaultRuntime.log(
+        theme.muted(
+          t(
+            "update.channelSet",
+            { channel: requestedChannel },
+            `Update channel set to ${requestedChannel}.`,
+          ),
+        ),
+      );
     }
   }
 
   const showProgress = !opts.json && process.stdout.isTTY;
 
   if (!opts.json) {
-    defaultRuntime.log(theme.heading("Updating OpenClaw..."));
+    defaultRuntime.log(theme.heading(t("update.updatingHeading", {}, "Updating OpenClaw...")));
     defaultRuntime.log("");
   }
 
@@ -945,19 +1058,37 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
     if (result.reason === "dirty") {
       defaultRuntime.log(
         theme.warn(
-          "Skipped: working directory has uncommitted changes. Commit or stash them first.",
+          t(
+            "update.skippedDirty",
+            {},
+            "Skipped: working directory has uncommitted changes. Commit or stash them first.",
+          ),
         ),
       );
     }
     if (result.reason === "not-git-install") {
       defaultRuntime.log(
         theme.warn(
-          `Skipped: this OpenClaw install isn't a git checkout, and the package manager couldn't be detected. Update via your package manager, then run \`${replaceCliName(formatCliCommand("openclaw doctor"), CLI_NAME)}\` and \`${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}\`.`,
+          t(
+            "update.skippedNotGitInstall",
+            {
+              doctorCmd: replaceCliName(formatCliCommand("openclaw doctor"), CLI_NAME),
+              restartCmd: replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME),
+            },
+            `Skipped: this OpenClaw install isn't a git checkout, and the package manager couldn't be detected. Update via your package manager, then run \`${replaceCliName(formatCliCommand("openclaw doctor"), CLI_NAME)}\` and \`${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}\`.`,
+          ),
         ),
       );
       defaultRuntime.log(
         theme.muted(
-          `Examples: \`${replaceCliName("npm i -g openclaw@latest", CLI_NAME)}\` or \`${replaceCliName("pnpm add -g openclaw@latest", CLI_NAME)}\``,
+          t(
+            "update.skippedNotGitInstallExamples",
+            {
+              npmCmd: replaceCliName("npm i -g openclaw@latest", CLI_NAME),
+              pnpmCmd: replaceCliName("pnpm add -g openclaw@latest", CLI_NAME),
+            },
+            `Examples: \`${replaceCliName("npm i -g openclaw@latest", CLI_NAME)}\` or \`${replaceCliName("pnpm add -g openclaw@latest", CLI_NAME)}\``,
+          ),
         ),
       );
     }
@@ -976,7 +1107,9 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
 
     if (!opts.json) {
       defaultRuntime.log("");
-      defaultRuntime.log(theme.heading("Updating plugins..."));
+      defaultRuntime.log(
+        theme.heading(t("update.updatingPluginsHeading", {}, "Updating plugins...")),
+      );
     }
 
     const syncResult = await syncPluginsForUpdateChannel({
@@ -1009,13 +1142,23 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
       if (syncResult.summary.switchedToBundled.length > 0) {
         defaultRuntime.log(
           theme.muted(
-            `Switched to bundled plugins: ${summarizeList(syncResult.summary.switchedToBundled)}.`,
+            t(
+              "update.switchedToBundled",
+              { plugins: summarizeList(syncResult.summary.switchedToBundled) },
+              `Switched to bundled plugins: ${summarizeList(syncResult.summary.switchedToBundled)}.`,
+            ),
           ),
         );
       }
       if (syncResult.summary.switchedToNpm.length > 0) {
         defaultRuntime.log(
-          theme.muted(`Restored npm plugins: ${summarizeList(syncResult.summary.switchedToNpm)}.`),
+          theme.muted(
+            t(
+              "update.restoredNpmPlugins",
+              { plugins: summarizeList(syncResult.summary.switchedToNpm) },
+              `Restored npm plugins: ${summarizeList(syncResult.summary.switchedToNpm)}.`,
+            ),
+          ),
         );
       }
       for (const warning of syncResult.summary.warnings) {
@@ -1031,16 +1174,29 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
       const skipped = npmResult.outcomes.filter((entry) => entry.status === "skipped").length;
 
       if (npmResult.outcomes.length === 0) {
-        defaultRuntime.log(theme.muted("No plugin updates needed."));
+        defaultRuntime.log(
+          theme.muted(t("update.noPluginUpdatesNeeded", {}, "No plugin updates needed.")),
+        );
       } else {
-        const parts = [`${updated} updated`, `${unchanged} unchanged`];
+        const parts = [
+          t("update.pluginsUpdatedCount", { count: updated }, `${updated} updated`),
+          t("update.pluginsUnchangedCount", { count: unchanged }, `${unchanged} unchanged`),
+        ];
         if (failed > 0) {
-          parts.push(`${failed} failed`);
+          parts.push(t("update.pluginsFailedCount", { count: failed }, `${failed} failed`));
         }
         if (skipped > 0) {
-          parts.push(`${skipped} skipped`);
+          parts.push(t("update.pluginsSkippedCount", { count: skipped }, `${skipped} skipped`));
         }
-        defaultRuntime.log(theme.muted(`npm plugins: ${parts.join(", ")}.`));
+        defaultRuntime.log(
+          theme.muted(
+            t(
+              "update.npmPluginsSummary",
+              { summary: parts.join(", ") },
+              `npm plugins: ${parts.join(", ")}.`,
+            ),
+          ),
+        );
       }
 
       for (const outcome of npmResult.outcomes) {
@@ -1051,7 +1207,11 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
       }
     }
   } else if (!opts.json) {
-    defaultRuntime.log(theme.warn("Skipping plugin updates: config is invalid."));
+    defaultRuntime.log(
+      theme.warn(
+        t("update.skippingPluginsConfigInvalid", {}, "Skipping plugin updates: config is invalid."),
+      ),
+    );
   }
 
   await tryWriteCompletionCache(root, Boolean(opts.json));
@@ -1066,12 +1226,18 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
   if (shouldRestart) {
     if (!opts.json) {
       defaultRuntime.log("");
-      defaultRuntime.log(theme.heading("Restarting service..."));
+      defaultRuntime.log(
+        theme.heading(t("update.restartingServiceHeading", {}, "Restarting service...")),
+      );
     }
     try {
       const restarted = await runDaemonRestart();
       if (!opts.json && restarted) {
-        defaultRuntime.log(theme.success("Daemon restarted successfully."));
+        defaultRuntime.log(
+          theme.success(
+            t("update.daemonRestartedSuccessfully", {}, "Daemon restarted successfully."),
+          ),
+        );
         defaultRuntime.log("");
         process.env.OPENCLAW_UPDATE_IN_PROGRESS = "1";
         try {
@@ -1080,17 +1246,33 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
             nonInteractive: !interactiveDoctor,
           });
         } catch (err) {
-          defaultRuntime.log(theme.warn(`Doctor failed: ${String(err)}`));
+          defaultRuntime.log(
+            theme.warn(
+              t("update.doctorFailed", { error: String(err) }, `Doctor failed: ${String(err)}`),
+            ),
+          );
         } finally {
           delete process.env.OPENCLAW_UPDATE_IN_PROGRESS;
         }
       }
     } catch (err) {
       if (!opts.json) {
-        defaultRuntime.log(theme.warn(`Daemon restart failed: ${String(err)}`));
+        defaultRuntime.log(
+          theme.warn(
+            t(
+              "update.daemonRestartFailed",
+              { error: String(err) },
+              `Daemon restart failed: ${String(err)}`,
+            ),
+          ),
+        );
         defaultRuntime.log(
           theme.muted(
-            `You may need to restart the service manually: ${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}`,
+            t(
+              "update.manualRestartHint",
+              { command: replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME) },
+              `You may need to restart the service manually: ${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}`,
+            ),
           ),
         );
       }
@@ -1100,13 +1282,24 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
     if (result.mode === "npm" || result.mode === "pnpm") {
       defaultRuntime.log(
         theme.muted(
-          `Tip: Run \`${replaceCliName(formatCliCommand("openclaw doctor"), CLI_NAME)}\`, then \`${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}\` to apply updates to a running gateway.`,
+          t(
+            "update.tipDoctorAndRestart",
+            {
+              doctorCmd: replaceCliName(formatCliCommand("openclaw doctor"), CLI_NAME),
+              restartCmd: replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME),
+            },
+            `Tip: Run \`${replaceCliName(formatCliCommand("openclaw doctor"), CLI_NAME)}\`, then \`${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}\` to apply updates to a running gateway.`,
+          ),
         ),
       );
     } else {
       defaultRuntime.log(
         theme.muted(
-          `Tip: Run \`${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}\` to apply updates to a running gateway.`,
+          t(
+            "update.tipRestart",
+            { command: replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME) },
+            `Tip: Run \`${replaceCliName(formatCliCommand("openclaw gateway restart"), CLI_NAME)}\` to apply updates to a running gateway.`,
+          ),
         ),
       );
     }
@@ -1120,7 +1313,11 @@ export async function updateCommand(opts: UpdateCommandOptions): Promise<void> {
 export async function updateWizardCommand(opts: UpdateWizardOptions = {}): Promise<void> {
   if (!process.stdin.isTTY) {
     defaultRuntime.error(
-      "Update wizard requires a TTY. Use `openclaw update --channel <stable|beta|dev>` instead.",
+      t(
+        "update.wizardRequiresTty",
+        {},
+        "Update wizard requires a TTY. Use `openclaw update --channel <stable|beta|dev>` instead.",
+      ),
     );
     defaultRuntime.exit(1);
     return;
@@ -1128,7 +1325,9 @@ export async function updateWizardCommand(opts: UpdateWizardOptions = {}): Promi
 
   const timeoutMs = opts.timeout ? Number.parseInt(opts.timeout, 10) * 1000 : undefined;
   if (timeoutMs !== undefined && (Number.isNaN(timeoutMs) || timeoutMs <= 0)) {
-    defaultRuntime.error("--timeout must be a positive integer (seconds)");
+    defaultRuntime.error(
+      t("update.timeoutInvalid", {}, "--timeout must be a positive integer (seconds)"),
+    );
     defaultRuntime.exit(1);
     return;
   }
@@ -1168,34 +1367,38 @@ export async function updateWizardCommand(opts: UpdateWizardOptions = {}): Promi
   });
 
   const pickedChannel = await selectStyled({
-    message: "Update channel",
+    message: t("update.wizardChannelPrompt", {}, "Update channel"),
     options: [
       {
         value: "keep",
-        label: `Keep current (${channelInfo.channel})`,
+        label: t(
+          "update.wizardKeepCurrent",
+          { channel: channelInfo.channel },
+          `Keep current (${channelInfo.channel})`,
+        ),
         hint: channelLabel,
       },
       {
         value: "stable",
-        label: "Stable",
-        hint: "Tagged releases (npm latest)",
+        label: t("update.wizardStable", {}, "Stable"),
+        hint: t("update.wizardStableHint", {}, "Tagged releases (npm latest)"),
       },
       {
         value: "beta",
-        label: "Beta",
-        hint: "Prereleases (npm beta)",
+        label: t("update.wizardBeta", {}, "Beta"),
+        hint: t("update.wizardBetaHint", {}, "Prereleases (npm beta)"),
       },
       {
         value: "dev",
-        label: "Dev",
-        hint: "Git main",
+        label: t("update.wizardDev", {}, "Dev"),
+        hint: t("update.wizardDevHint", {}, "Git main"),
       },
     ],
     initialValue: "keep",
   });
 
   if (isCancel(pickedChannel)) {
-    defaultRuntime.log(theme.muted("Update cancelled."));
+    defaultRuntime.log(theme.muted(t("update.cancelled", {}, "Update cancelled.")));
     defaultRuntime.exit(0);
     return;
   }
@@ -1211,7 +1414,11 @@ export async function updateWizardCommand(opts: UpdateWizardOptions = {}): Promi
         const empty = await isEmptyDir(gitDir);
         if (!empty) {
           defaultRuntime.error(
-            `OPENCLAW_GIT_DIR points at a non-git directory: ${gitDir}. Set OPENCLAW_GIT_DIR to an empty folder or an openclaw checkout.`,
+            t(
+              "update.nonGitDirectory",
+              { dir: gitDir },
+              `OPENCLAW_GIT_DIR points at a non-git directory: ${gitDir}. Set OPENCLAW_GIT_DIR to an empty folder or an openclaw checkout.`,
+            ),
           );
           defaultRuntime.exit(1);
           return;
@@ -1219,12 +1426,16 @@ export async function updateWizardCommand(opts: UpdateWizardOptions = {}): Promi
       }
       const ok = await confirm({
         message: stylePromptMessage(
-          `Create a git checkout at ${gitDir}? (override via OPENCLAW_GIT_DIR)`,
+          t(
+            "update.createGitCheckout",
+            { dir: gitDir },
+            `Create a git checkout at ${gitDir}? (override via OPENCLAW_GIT_DIR)`,
+          ),
         ),
         initialValue: true,
       });
       if (isCancel(ok) || !ok) {
-        defaultRuntime.log(theme.muted("Update cancelled."));
+        defaultRuntime.log(theme.muted(t("update.cancelled", {}, "Update cancelled.")));
         defaultRuntime.exit(0);
         return;
       }
@@ -1232,11 +1443,13 @@ export async function updateWizardCommand(opts: UpdateWizardOptions = {}): Promi
   }
 
   const restart = await confirm({
-    message: stylePromptMessage("Restart the gateway service after update?"),
+    message: stylePromptMessage(
+      t("update.restartAfterUpdate", {}, "Restart the gateway service after update?"),
+    ),
     initialValue: true,
   });
   if (isCancel(restart)) {
-    defaultRuntime.log(theme.muted("Update cancelled."));
+    defaultRuntime.log(theme.muted(t("update.cancelled", {}, "Update cancelled.")));
     defaultRuntime.exit(0);
     return;
   }
@@ -1256,52 +1469,90 @@ export async function updateWizardCommand(opts: UpdateWizardOptions = {}): Promi
 export function registerUpdateCli(program: Command) {
   const update = program
     .command("update")
-    .description("Update OpenClaw to the latest version")
-    .option("--json", "Output result as JSON", false)
-    .option("--no-restart", "Skip restarting the gateway service after a successful update")
-    .option("--channel <stable|beta|dev>", "Persist update channel (git + npm)")
-    .option("--tag <dist-tag|version>", "Override npm dist-tag or version for this update")
-    .option("--timeout <seconds>", "Timeout for each update step in seconds (default: 1200)")
-    .option("--yes", "Skip confirmation prompts (non-interactive)", false)
+    .description(t("update.cliDescription", {}, "Update OpenClaw to the latest version"))
+    .option("--json", t("update.cliOptionJson", {}, "Output result as JSON"), false)
+    .option(
+      "--no-restart",
+      t(
+        "update.cliOptionNoRestart",
+        {},
+        "Skip restarting the gateway service after a successful update",
+      ),
+    )
+    .option(
+      "--channel <stable|beta|dev>",
+      t("update.cliOptionChannel", {}, "Persist update channel (git + npm)"),
+    )
+    .option(
+      "--tag <dist-tag|version>",
+      t("update.cliOptionTag", {}, "Override npm dist-tag or version for this update"),
+    )
+    .option(
+      "--timeout <seconds>",
+      t("update.cliOptionTimeout", {}, "Timeout for each update step in seconds (default: 1200)"),
+    )
+    .option(
+      "--yes",
+      t("update.cliOptionYes", {}, "Skip confirmation prompts (non-interactive)"),
+      false,
+    )
     .addHelpText("after", () => {
       const examples = [
-        ["openclaw update", "Update a source checkout (git)"],
-        ["openclaw update --channel beta", "Switch to beta channel (git + npm)"],
-        ["openclaw update --channel dev", "Switch to dev channel (git + npm)"],
-        ["openclaw update --tag beta", "One-off update to a dist-tag or version"],
-        ["openclaw update --no-restart", "Update without restarting the service"],
-        ["openclaw update --json", "Output result as JSON"],
-        ["openclaw update --yes", "Non-interactive (accept downgrade prompts)"],
-        ["openclaw update wizard", "Interactive update wizard"],
-        ["openclaw --update", "Shorthand for openclaw update"],
+        ["openclaw update", t("update.helpExampleUpdate", {}, "Update a source checkout (git)")],
+        [
+          "openclaw update --channel beta",
+          t("update.helpExampleChannelBeta", {}, "Switch to beta channel (git + npm)"),
+        ],
+        [
+          "openclaw update --channel dev",
+          t("update.helpExampleChannelDev", {}, "Switch to dev channel (git + npm)"),
+        ],
+        [
+          "openclaw update --tag beta",
+          t("update.helpExampleTag", {}, "One-off update to a dist-tag or version"),
+        ],
+        [
+          "openclaw update --no-restart",
+          t("update.helpExampleNoRestart", {}, "Update without restarting the service"),
+        ],
+        ["openclaw update --json", t("update.helpExampleJson", {}, "Output result as JSON")],
+        [
+          "openclaw update --yes",
+          t("update.helpExampleYes", {}, "Non-interactive (accept downgrade prompts)"),
+        ],
+        ["openclaw update wizard", t("update.helpExampleWizard", {}, "Interactive update wizard")],
+        [
+          "openclaw --update",
+          t("update.helpExampleShorthand", {}, "Shorthand for openclaw update"),
+        ],
       ] as const;
       const fmtExamples = examples
         .map(([cmd, desc]) => `  ${theme.command(cmd)} ${theme.muted(`# ${desc}`)}`)
         .join("\n");
       return `
-${theme.heading("What this does:")}
-  - Git checkouts: fetches, rebases, installs deps, builds, and runs doctor
-  - npm installs: updates via detected package manager
+${theme.heading(t("update.helpWhatThisDoes", {}, "What this does:"))}
+  - ${t("update.helpGitCheckouts", {}, "Git checkouts: fetches, rebases, installs deps, builds, and runs doctor")}
+  - ${t("update.helpNpmInstalls", {}, "npm installs: updates via detected package manager")}
 
-${theme.heading("Switch channels:")}
-  - Use --channel stable|beta|dev to persist the update channel in config
-  - Run openclaw update status to see the active channel and source
-  - Use --tag <dist-tag|version> for a one-off npm update without persisting
+${theme.heading(t("update.helpSwitchChannels", {}, "Switch channels:"))}
+  - ${t("update.helpChannelPersist", {}, "Use --channel stable|beta|dev to persist the update channel in config")}
+  - ${t("update.helpChannelStatus", {}, "Run openclaw update status to see the active channel and source")}
+  - ${t("update.helpTagOneOff", {}, "Use --tag <dist-tag|version> for a one-off npm update without persisting")}
 
-${theme.heading("Non-interactive:")}
-  - Use --yes to accept downgrade prompts
-  - Combine with --channel/--tag/--restart/--json/--timeout as needed
+${theme.heading(t("update.helpNonInteractive", {}, "Non-interactive:"))}
+  - ${t("update.helpYesFlag", {}, "Use --yes to accept downgrade prompts")}
+  - ${t("update.helpCombineFlags", {}, "Combine with --channel/--tag/--restart/--json/--timeout as needed")}
 
-${theme.heading("Examples:")}
+${theme.heading(t("update.helpExamplesHeading", {}, "Examples:"))}
 ${fmtExamples}
 
-${theme.heading("Notes:")}
-  - Switch channels with --channel stable|beta|dev
-  - For global installs: auto-updates via detected package manager when possible (see docs/install/updating.md)
-  - Downgrades require confirmation (can break configuration)
-  - Skips update if the working directory has uncommitted changes
+${theme.heading(t("update.helpNotesHeading", {}, "Notes:"))}
+  - ${t("update.helpNoteSwitchChannels", {}, "Switch channels with --channel stable|beta|dev")}
+  - ${t("update.helpNoteGlobalInstalls", {}, "For global installs: auto-updates via detected package manager when possible (see docs/install/updating.md)")}
+  - ${t("update.helpNoteDowngrades", {}, "Downgrades require confirmation (can break configuration)")}
+  - ${t("update.helpNoteSkipDirty", {}, "Skips update if the working directory has uncommitted changes")}
 
-${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.openclaw.ai/cli/update")}`;
+${theme.muted(t("update.helpDocs", {}, "Docs:"))} ${formatDocsLink("/cli/update", "docs.openclaw.ai/cli/update")}`;
     })
     .action(async (opts) => {
       try {
@@ -1321,8 +1572,11 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.openclaw.ai/cli/up
 
   update
     .command("wizard")
-    .description("Interactive update wizard")
-    .option("--timeout <seconds>", "Timeout for each update step in seconds (default: 1200)")
+    .description(t("update.wizardDescription", {}, "Interactive update wizard"))
+    .option(
+      "--timeout <seconds>",
+      t("update.cliOptionTimeout", {}, "Timeout for each update step in seconds (default: 1200)"),
+    )
     .addHelpText(
       "after",
       `\n${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.openclaw.ai/cli/update")}\n`,
@@ -1340,20 +1594,38 @@ ${theme.muted("Docs:")} ${formatDocsLink("/cli/update", "docs.openclaw.ai/cli/up
 
   update
     .command("status")
-    .description("Show update channel and version status")
-    .option("--json", "Output result as JSON", false)
-    .option("--timeout <seconds>", "Timeout for update checks in seconds (default: 3)")
+    .description(t("update.statusDescription", {}, "Show update channel and version status"))
+    .option("--json", t("update.cliOptionJson", {}, "Output result as JSON"), false)
+    .option(
+      "--timeout <seconds>",
+      t("update.statusTimeoutOption", {}, "Timeout for update checks in seconds (default: 3)"),
+    )
     .addHelpText(
       "after",
       () =>
-        `\n${theme.heading("Examples:")}\n${formatHelpExamples([
-          ["openclaw update status", "Show channel + version status."],
-          ["openclaw update status --json", "JSON output."],
-          ["openclaw update status --timeout 10", "Custom timeout."],
-        ])}\n\n${theme.heading("Notes:")}\n${theme.muted(
-          "- Shows current update channel (stable/beta/dev) and source",
-        )}\n${theme.muted("- Includes git tag/branch/SHA for source checkouts")}\n\n${theme.muted(
-          "Docs:",
+        `\n${theme.heading(t("update.helpExamplesHeading", {}, "Examples:"))}\n${formatHelpExamples(
+          [
+            [
+              "openclaw update status",
+              t("update.statusHelpExampleStatus", {}, "Show channel + version status."),
+            ],
+            [
+              "openclaw update status --json",
+              t("update.statusHelpExampleJson", {}, "JSON output."),
+            ],
+            [
+              "openclaw update status --timeout 10",
+              t("update.statusHelpExampleTimeout", {}, "Custom timeout."),
+            ],
+          ],
+        )}\n\n${theme.heading(t("update.helpNotesHeading", {}, "Notes:"))}\n${theme.muted(
+          t(
+            "update.statusNoteChannel",
+            {},
+            "- Shows current update channel (stable/beta/dev) and source",
+          ),
+        )}\n${theme.muted(t("update.statusNoteGit", {}, "- Includes git tag/branch/SHA for source checkouts"))}\n\n${theme.muted(
+          t("update.helpDocs", {}, "Docs:"),
         )} ${formatDocsLink("/cli/update", "docs.openclaw.ai/cli/update")}`,
     )
     .action(async (opts) => {

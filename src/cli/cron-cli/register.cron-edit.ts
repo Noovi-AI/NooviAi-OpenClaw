@@ -1,5 +1,6 @@
 import type { Command } from "commander";
 import { danger } from "../../globals.js";
+import { t } from "../../i18n/index.js";
 import { sanitizeAgentId } from "../../routing/session-key.js";
 import { defaultRuntime } from "../../runtime.js";
 import { addGatewayClientOptions, callGatewayFromCli } from "../gateway-rpc.js";
@@ -60,16 +61,30 @@ export function registerCronEditCommand(cron: Command) {
         try {
           if (opts.session === "main" && opts.message) {
             throw new Error(
-              "Main jobs cannot use --message; use --system-event or --session isolated.",
+              t(
+                "cron.errorMainNoMessage",
+                {},
+                "Main jobs cannot use --message; use --system-event or --session isolated.",
+              ),
             );
           }
           if (opts.session === "isolated" && opts.systemEvent) {
             throw new Error(
-              "Isolated jobs cannot use --system-event; use --message or --session main.",
+              t(
+                "cron.errorIsolatedNoSystemEvent",
+                {},
+                "Isolated jobs cannot use --system-event; use --message or --session main.",
+              ),
             );
           }
           if (opts.announce && typeof opts.deliver === "boolean") {
-            throw new Error("Choose --announce or --no-deliver (not multiple).");
+            throw new Error(
+              t(
+                "cron.errorChooseAnnounceOrDeliver",
+                {},
+                "Choose --announce or --no-deliver (not multiple).",
+              ),
+            );
           }
 
           const patch: Record<string, unknown> = {};
@@ -80,7 +95,9 @@ export function registerCronEditCommand(cron: Command) {
             patch.description = opts.description;
           }
           if (opts.enable && opts.disable) {
-            throw new Error("Choose --enable or --disable, not both");
+            throw new Error(
+              t("cron.errorEnableOrDisable", {}, "Choose --enable or --disable, not both"),
+            );
           }
           if (opts.enable) {
             patch.enabled = true;
@@ -89,7 +106,13 @@ export function registerCronEditCommand(cron: Command) {
             patch.enabled = false;
           }
           if (opts.deleteAfterRun && opts.keepAfterRun) {
-            throw new Error("Choose --delete-after-run or --keep-after-run, not both");
+            throw new Error(
+              t(
+                "cron.errorDeleteOrKeep",
+                {},
+                "Choose --delete-after-run or --keep-after-run, not both",
+              ),
+            );
           }
           if (opts.deleteAfterRun) {
             patch.deleteAfterRun = true;
@@ -104,7 +127,9 @@ export function registerCronEditCommand(cron: Command) {
             patch.wakeMode = opts.wake;
           }
           if (opts.agent && opts.clearAgent) {
-            throw new Error("Use --agent or --clear-agent, not both");
+            throw new Error(
+              t("cron.errorAgentOrClear", {}, "Use --agent or --clear-agent, not both"),
+            );
           }
           if (typeof opts.agent === "string" && opts.agent.trim()) {
             patch.agentId = sanitizeAgentId(opts.agent.trim());
@@ -115,18 +140,20 @@ export function registerCronEditCommand(cron: Command) {
 
           const scheduleChosen = [opts.at, opts.every, opts.cron].filter(Boolean).length;
           if (scheduleChosen > 1) {
-            throw new Error("Choose at most one schedule change");
+            throw new Error(
+              t("cron.errorOneScheduleChange", {}, "Choose at most one schedule change"),
+            );
           }
           if (opts.at) {
             const atIso = parseAt(String(opts.at));
             if (!atIso) {
-              throw new Error("Invalid --at");
+              throw new Error(t("cron.errorInvalidAtShort", {}, "Invalid --at"));
             }
             patch.schedule = { kind: "at", at: atIso };
           } else if (opts.every) {
             const everyMs = parseDurationMs(String(opts.every));
             if (!everyMs) {
-              throw new Error("Invalid --every");
+              throw new Error(t("cron.errorInvalidEveryShort", {}, "Invalid --every"));
             }
             patch.schedule = { kind: "every", everyMs };
           } else if (opts.cron) {
@@ -160,7 +187,9 @@ export function registerCronEditCommand(cron: Command) {
             hasDeliveryTarget ||
             hasBestEffort;
           if (hasSystemEventPatch && hasAgentTurnPatch) {
-            throw new Error("Choose at most one payload change");
+            throw new Error(
+              t("cron.errorOnePayloadChange", {}, "Choose at most one payload change"),
+            );
           }
           if (hasSystemEventPatch) {
             patch.payload = {

@@ -10,6 +10,7 @@ import {
   type SessionsPatchResult,
   type SessionsPatchParams,
 } from "../gateway/protocol/index.js";
+import { t } from "../i18n/index.js";
 import { GATEWAY_CLIENT_MODES, GATEWAY_CLIENT_NAMES } from "../utils/message-channel.js";
 import { VERSION } from "../version.js";
 
@@ -231,7 +232,7 @@ export function resolveGatewayConnection(opts: GatewayConnectionOptions) {
   ensureExplicitGatewayAuth({
     urlOverride,
     auth: explicitAuth,
-    errorHint: "Fix: pass --token or --password when using --url.",
+    errorHint: t("tui.authErrorHint", {}, "Fix: pass --token or --password when using --url."),
   });
   const url =
     urlOverride ||
