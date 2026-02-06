@@ -28,7 +28,11 @@ export type TranslationParams = Record<string, string | number | boolean>;
 /**
  * Translation function signature
  */
-export type TranslationFunction = (key: string, params?: TranslationParams) => string;
+export type TranslationFunction = (
+  key: string,
+  params?: TranslationParams,
+  fallback?: string,
+) => string;
 
 /**
  * Translation dictionary structure (nested keys)

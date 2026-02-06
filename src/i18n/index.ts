@@ -97,12 +97,13 @@ function interpolate(template: string, params?: TranslationParams): string {
  *
  * @param key - Dot-notation key (e.g., "onboard.security.title")
  * @param params - Optional interpolation parameters
- * @returns Translated string, or key if not found
+ * @param fallback - Optional fallback string if key not found in any locale
+ * @returns Translated string, fallback, or key if not found
  *
  * Falls back to English if translation not found in current locale.
- * Returns the key itself if not found in any locale.
+ * Uses the provided fallback string, or the key itself, if not found in any locale.
  */
-export function t(key: string, params?: TranslationParams): string {
+export function t(key: string, params?: TranslationParams, fallback?: string): string {
   // Auto-initialize if not done (for convenience during migration)
   if (!initialized) {
     initI18n();
@@ -122,8 +123,8 @@ export function t(key: string, params?: TranslationParams): string {
     }
   }
 
-  // Return key as fallback (useful during development)
-  return interpolate(key, params);
+  // Use provided fallback or key as last resort
+  return interpolate(fallback ?? key, params);
 }
 
 /**
