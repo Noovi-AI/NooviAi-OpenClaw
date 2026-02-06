@@ -87,8 +87,6 @@ openclaw agent --message "Lista de tarefas" --thinking high
 
 ## Configuracao de Idioma
 
-O idioma e detectado automaticamente pelo sistema. Para forcar um idioma especifico:
-
 ```bash
 # Usar Portugues Brasileiro
 LANG=pt_BR.UTF-8 openclaw onboard
@@ -115,9 +113,12 @@ Ou configure no arquivo `~/.openclaw/openclaw.json`:
 - Discord
 - Google Chat
 - Signal
-- iMessage
+- BlueBubbles (iMessage - recomendado)
+- iMessage (legacy)
 - Microsoft Teams
 - Matrix
+- Zalo
+- Feishu/Lark
 - WebChat
 
 ---

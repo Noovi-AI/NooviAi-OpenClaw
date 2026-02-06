@@ -46,6 +46,7 @@ export default {
     config: "Config",
     logs: "Logs",
     cron: "Cron Jobs",
+    usage: "Usage",
     devices: "Devices",
     approvals: "Approvals",
     debug: "Debug",

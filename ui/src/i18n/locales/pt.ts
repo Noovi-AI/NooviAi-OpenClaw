@@ -46,6 +46,7 @@ export default {
     config: "Config",
     logs: "Logs",
     cron: "Tarefas Agendadas",
+    usage: "Consumo",
     devices: "Dispositivos",
     approvals: "Aprovacoes",
     debug: "Debug",
