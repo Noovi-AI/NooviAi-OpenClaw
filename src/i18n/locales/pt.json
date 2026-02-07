@@ -254,7 +254,7 @@
       },
       "token": {
         "label": "Token",
-        "info": "Token do Gateway: autenticação compartilhada para o Gateway + UI de Controle.\nArmazenado em: ~/.openclaw/openclaw.json (gateway.auth.token) ou OPENCLAW_GATEWAY_TOKEN.\nA Web UI armazena uma cópia no localStorage deste navegador (openclaw.control.settings.v1).\nObtenha o link tokenizado a qualquer momento: {{command}}"
+        "info": "Token do Gateway: autenticação compartilhada para o Gateway + UI de Controle.\nArmazenado em: ~/.openclaw/openclaw.json (gateway.auth.token) ou OPENCLAW_GATEWAY_TOKEN.\nVer token: {{viewTokenCommand}}\nGerar token: {{generateTokenCommand}}\nA Web UI armazena uma cópia no localStorage deste navegador (openclaw.control.settings.v1).\nAbrir o dashboard a qualquer momento: {{dashboardCommand}}\nSe solicitado: cole o token nas configurações da UI de Controle (ou use a URL tokenizada do dashboard)."
       },
       "webUi": {
         "label": "Web UI",

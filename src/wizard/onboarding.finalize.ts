@@ -306,7 +306,10 @@ export async function finalizeOnboardingWizard(
     customBindHost: settings.customBindHost,
     basePath: controlUiBasePath,
   });
-  const dashboardUrl = links.httpUrl;
+  const authedUrl =
+    settings.authMode === "token" && settings.gatewayToken
+      ? `${links.httpUrl}#token=${encodeURIComponent(settings.gatewayToken)}`
+      : links.httpUrl;
   const gatewayProbe = await probeGatewayReachable({
     url: links.wsUrl,
     token: settings.authMode === "token" ? settings.gatewayToken : undefined,
@@ -332,7 +335,14 @@ export async function finalizeOnboardingWizard(
 
   await prompter.note(
     [
-      t("onboard.finalize.controlUi.webUi", { url: dashboardUrl }, `Web UI: ${dashboardUrl}`),
+      t("onboard.finalize.controlUi.webUi", { url: links.httpUrl }, `Web UI: ${links.httpUrl}`),
+      settings.authMode === "token" && settings.gatewayToken
+        ? t(
+            "onboard.finalize.controlUi.webUiWithToken",
+            { url: authedUrl },
+            `Web UI (with token): ${authedUrl}`,
+          )
+        : undefined,
       t("onboard.finalize.controlUi.gatewayWs", { url: links.wsUrl }, `Gateway WS: ${links.wsUrl}`),
       gatewayStatusLine,
       t("onboard.finalize.controlUi.docs", {}, "Docs: https://docs.openclaw.ai/web/control-ui"),
@@ -363,12 +373,19 @@ export async function finalizeOnboardingWizard(
     await prompter.note(
       t(
         "onboard.finalize.token.info",
-        { command: formatCliCommand("openclaw dashboard --no-open") },
+        {
+          viewTokenCommand: formatCliCommand("openclaw config get gateway.auth.token"),
+          generateTokenCommand: formatCliCommand("openclaw doctor --generate-gateway-token"),
+          dashboardCommand: formatCliCommand("openclaw dashboard --no-open"),
+        },
         [
           "Gateway token: shared auth for the Gateway + Control UI.",
           "Stored in: ~/.openclaw/openclaw.json (gateway.auth.token) or OPENCLAW_GATEWAY_TOKEN.",
+          `View token: ${formatCliCommand("openclaw config get gateway.auth.token")}`,
+          `Generate token: ${formatCliCommand("openclaw doctor --generate-gateway-token")}`,
           "Web UI stores a copy in this browser's localStorage (openclaw.control.settings.v1).",
-          `Get the tokenized link anytime: ${formatCliCommand("openclaw dashboard --no-open")}`,
+          `Open the dashboard anytime: ${formatCliCommand("openclaw dashboard --no-open")}`,
+          "If prompted: paste the token into Control UI settings (or use the tokenized dashboard URL).",
         ].join("\n"),
       ),
       t("onboard.finalize.token.label", {}, "Token"),
@@ -403,25 +420,27 @@ export async function finalizeOnboardingWizard(
     } else if (hatchChoice === "web") {
       const browserSupport = await detectBrowserOpenSupport();
       if (browserSupport.ok) {
-        controlUiOpened = await openUrl(dashboardUrl);
+        controlUiOpened = await openUrl(authedUrl);
         if (!controlUiOpened) {
           controlUiOpenHint = formatControlUiSshHint({
             port: settings.port,
             basePath: controlUiBasePath,
+            token: settings.authMode === "token" ? settings.gatewayToken : undefined,
           });
         }
       } else {
         controlUiOpenHint = formatControlUiSshHint({
           port: settings.port,
           basePath: controlUiBasePath,
+          token: settings.authMode === "token" ? settings.gatewayToken : undefined,
         });
       }
       await prompter.note(
         [
           t(
             "onboard.finalize.dashboard.linkWithToken",
-            { url: dashboardUrl },
-            `Dashboard link (with token): ${dashboardUrl}`,
+            { url: authedUrl },
+            `Dashboard link (with token): ${authedUrl}`,
           ),
           controlUiOpened
             ? t(
@@ -540,17 +559,19 @@ export async function finalizeOnboardingWizard(
   if (shouldOpenControlUi) {
     const browserSupport = await detectBrowserOpenSupport();
     if (browserSupport.ok) {
-      controlUiOpened = await openUrl(dashboardUrl);
+      controlUiOpened = await openUrl(authedUrl);
       if (!controlUiOpened) {
         controlUiOpenHint = formatControlUiSshHint({
           port: settings.port,
           basePath: controlUiBasePath,
+          token: settings.gatewayToken,
         });
       }
     } else {
       controlUiOpenHint = formatControlUiSshHint({
         port: settings.port,
         basePath: controlUiBasePath,
+        token: settings.gatewayToken,
       });
     }
 
@@ -558,8 +579,8 @@ export async function finalizeOnboardingWizard(
       [
         t(
           "onboard.finalize.dashboard.linkWithToken",
-          { url: dashboardUrl },
-          `Dashboard link (with token): ${dashboardUrl}`,
+          { url: authedUrl },
+          `Dashboard link (with token): ${authedUrl}`,
         ),
         controlUiOpened
           ? t(
